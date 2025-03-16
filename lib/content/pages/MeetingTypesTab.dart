@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tabourak/colors/app_colors.dart';
 
 class MeetingTypesTab extends StatelessWidget {
   @override
@@ -11,14 +12,16 @@ class MeetingTypesTab extends StatelessWidget {
           title: 'In-Person Meeting',
           duration: '30 minutes',
           type: 'One-on-One',
-          link: 'https://appt.link/meet-with-yasmine-ro-yUnB9Oqn/in-person-meeting',
+          link:
+              'https://appt.link/meet-with-yasmine-ro-yUnB9Oqn/in-person-meeting',
         ),
         SizedBox(height: 16),
         _buildMeetingTypeCard(
           title: 'Web Conference',
           duration: '30 minutes',
           type: 'One-on-One',
-          link: 'https://appt.link/meet-with-yasmine-ro-yUnB9Oqn/web-conference',
+          link:
+              'https://appt.link/meet-with-yasmine-ro-yUnB9Oqn/web-conference',
         ),
       ],
     );
@@ -32,6 +35,7 @@ class MeetingTypesTab extends StatelessWidget {
   }) {
     print("Building MeetingTypeCard: $title"); // Debugging log
     return Card(
+      color: AppColors.lightcolor,
       child: Padding(
         padding: EdgeInsets.all(16),
         child: Column(
@@ -39,10 +43,7 @@ class MeetingTypesTab extends StatelessWidget {
           children: [
             Row(
               children: [
-                CircleAvatar(
-                  backgroundColor: Color(0xFF1E9BFF),
-                  radius: 8,
-                ),
+                CircleAvatar(backgroundColor: AppColors.accentColor, radius: 8),
                 SizedBox(width: 8),
                 Text(
                   title,
@@ -53,31 +54,39 @@ class MeetingTypesTab extends StatelessWidget {
             SizedBox(height: 8),
             Row(
               children: [
-                Icon(Icons.access_time, size: 16, color: Colors.grey),
+                Icon(
+                  Icons.access_time,
+                  size: 16,
+                  color: AppColors.textColorSecond,
+                ),
                 SizedBox(width: 4),
                 Text(duration),
                 SizedBox(width: 16),
-                Icon(Icons.person, size: 16, color: Colors.grey),
+                Icon(Icons.person, size: 16, color: AppColors.textColorSecond),
                 SizedBox(width: 4),
                 Text(type),
               ],
             ),
             SizedBox(height: 8),
-            Text(
-              link,
-              style: TextStyle(color: Colors.blue),
-            ),
+            Text(link, style: TextStyle(color: AppColors.secondaryColor)),
             SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ElevatedButton.icon(
                   onPressed: () {},
-                  icon: Icon(Icons.link, size: 16),
-                  label: Text('Copy Link'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.mediumColor, 
+                  ),
+                  icon: Icon(Icons.link, size: 16, color: AppColors.textColor),
+                  label: Text(
+                    'Copy Link',
+
+                    style: TextStyle(color: AppColors.textColorSecond),
+                  ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.more_vert),
+                  icon: Icon(Icons.more_vert, color: AppColors.textColor),
                   onPressed: () {},
                 ),
               ],

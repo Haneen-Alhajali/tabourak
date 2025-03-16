@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tabourak/colors/app_colors.dart';
 import 'widgets/schedule_manager_section.dart';
 import 'widgets/recurring_weekly_hours_section.dart';
 import 'widgets/date_specific_hours_section.dart';
@@ -27,6 +28,7 @@ class _AvailabilityContentState extends State<AvailabilityContent> {
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
+            color: AppColors.textColor
           ),
         ),
         const SizedBox(height: 16),
@@ -79,12 +81,12 @@ class _AvailabilityContentState extends State<AvailabilityContent> {
         children: [
           Row(
             children: [
-              Icon(icon, color: isActive ? Colors.blue : Colors.grey, size: 20), // Smaller icons
+              Icon(icon, color: isActive ? AppColors.primaryColor : AppColors.textColorSecond, size: 20), // Smaller icons
               const SizedBox(width: 4),
               Text(
                 title,
                 style: TextStyle(
-                  color: isActive ? Colors.blue : Colors.grey,
+                  color: isActive ?  AppColors.primaryColor : AppColors.textColorSecond,
                   fontSize: 14, // Smaller font size
                   fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
                 ),
@@ -96,7 +98,7 @@ class _AvailabilityContentState extends State<AvailabilityContent> {
             Container(
               width: title.length * 8.5, // Adjust width based on title length
               height: 2,
-              color: Colors.blue,
+              color:  AppColors.primaryColor,
             ),
         ],
       ),

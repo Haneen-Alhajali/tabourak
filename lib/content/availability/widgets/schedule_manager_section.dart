@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tabourak/colors/app_colors.dart';
 import 'custom_widgets.dart';
 
 class ScheduleManagerSection extends StatelessWidget {
@@ -21,7 +22,7 @@ class ScheduleManagerSection extends StatelessWidget {
           'Define the times you are available to be scheduled for meetings.',
           style: TextStyle(
             fontSize: 14,
-            color: Colors.grey,
+            color: AppColors.textColorSecond,
           ),
         ),
         const SizedBox(height: 16),
@@ -36,20 +37,20 @@ class ScheduleManagerSection extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: Colors.grey,
+                      color: AppColors.textColor,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.backgroundColor,
                       border: Border.all(color: Colors.grey.shade300),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Row(
                       children: [
-                        Icon(Icons.calendar_today, color: Colors.blue),
+                        Icon(Icons.calendar_today, color: AppColors.primaryColor),
                         SizedBox(width: 8),
                         Text(
                           'My Availability (default)',
@@ -59,7 +60,7 @@ class ScheduleManagerSection extends StatelessWidget {
                           ),
                         ),
                         Spacer(),
-                        Icon(Icons.edit, color: Colors.grey),
+                        Icon(Icons.edit, color: AppColors.textColorSecond),
                       ],
                     ),
                   ),
@@ -73,7 +74,7 @@ class ScheduleManagerSection extends StatelessWidget {
           'Times are in Asia/Hebron',
           style: TextStyle(
             fontSize: 14,
-            color: Colors.grey,
+            color: AppColors.textColorSecond,
           ),
         ),
       ],

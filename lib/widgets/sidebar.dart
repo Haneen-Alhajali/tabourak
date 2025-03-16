@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tabourak/colors/app_colors.dart';
 import 'nav_button.dart';
 import 'user_profile.dart';
 
@@ -25,7 +26,7 @@ class Sidebar extends StatelessWidget {
 
     return Container(
       width: 250, // Increased width for the sidebar
-      color: Colors.blue, // Background color
+      color: AppColors.primaryColor, // Background color
       child: Column(
         children: [
           // Margin from top for overall content
@@ -35,19 +36,19 @@ class Sidebar extends StatelessWidget {
               children: [
                 // Logo and Close Button Row
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16), // Horizontal padding
+                  padding: EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween, // Space between logo and close button
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween, 
                     children: [
                       // Tabourak Logo
                       Expanded(
                         child: Align(
-                          alignment: Alignment.center, // Center the logo horizontally
+                          alignment: Alignment.center, 
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(50), // Circular shape
+                            borderRadius: BorderRadius.circular(50), 
                             child: Image.asset(
-                              'images/tabourak_logo.png', // Add your logo image to assets
-                              width: 60, // Reduced size
+                              'images/tabourak_logo.png', 
+                              width: 60, 
                               height: 60,
                             ),
                           ),
@@ -55,23 +56,23 @@ class Sidebar extends StatelessWidget {
                       ),
                       // Close Button
                       IconButton(
-                        icon: Icon(Icons.close, color: Colors.white),
+                        icon: Icon(Icons.close, color: AppColors.backgroundColor),
                         onPressed: onClose,
                       ),
                     ],
                   ),
                 ),
-                SizedBox(height: 16), // Added space between logo and first navigation button (Meetings)
+                SizedBox(height: 16), 
               ],
             ),
           ),
           // Navigation Buttons
           Expanded(
             child: ListView(
-              padding: EdgeInsets.zero, // Remove ListView padding
+              padding: EdgeInsets.zero, 
               children: navButtons.map((button) {
                 return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 0), // Reduced padding for nav buttons
+                  padding: const EdgeInsets.symmetric(vertical: 0), 
                   child: NavButton(
                     icon: button['icon'] as IconData,
                     label: button['label'] as String,
@@ -93,19 +94,19 @@ class Sidebar extends StatelessWidget {
                 // Handle upgrade
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.pink,
+                backgroundColor: AppColors.accentColor,
                 padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
               ),
-              icon: Icon(Icons.star, color: Colors.white),
+              icon: Icon(Icons.star, color: AppColors.backgroundColor),
               label: Text(
                 'Upgrade',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color:AppColors.backgroundColor),
               ),
             ),
           ),
           // User Profile at the Bottom
           Container(
-            margin: EdgeInsets.only(bottom: 16), // Added margin
+            margin: EdgeInsets.only(bottom: 16), 
             child: UserProfile(),
           ),
         ],

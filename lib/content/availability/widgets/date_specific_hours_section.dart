@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:tabourak/colors/app_colors.dart';
 
 class DateSpecificHoursSection extends StatelessWidget {
   const DateSpecificHoursSection({Key? key}) : super(key: key);
@@ -17,7 +18,7 @@ class DateSpecificHoursSection extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
-                color: Colors.grey,
+                color: AppColors.textColorSecond,
               ),
             ),
             TextButton(
@@ -25,7 +26,7 @@ class DateSpecificHoursSection extends StatelessWidget {
               child: const Text(
                 'Add Date-Specific Hours',
                 style: TextStyle(
-                  color: Colors.blue,
+                  color: AppColors.primaryColor,
                 ),
               ),
             ),
@@ -47,7 +48,8 @@ class DateSpecificHoursSection extends StatelessWidget {
                   'This schedule doesn\'t have any date-specific hours yet.',
                   style: TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.bold,                    color: AppColors.textColor,
+
                   ),
                 ),
                 SizedBox(height: 8),
@@ -55,7 +57,7 @@ class DateSpecificHoursSection extends StatelessWidget {
                   'Use date-specific hours for one-off adjustments to your availability.',
                   style: TextStyle(
                     fontSize: 14,
-                    color: Colors.grey,
+                    color: AppColors.textColorSecond,
                   ),
                 ),
               ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tabourak/colors/app_colors.dart';
 
 class UserProfile extends StatelessWidget {
   @override
@@ -21,7 +22,7 @@ class UserProfile extends StatelessWidget {
               Text(
                 'Haneen Alhajali', // User name
                 style: TextStyle(
-                  color: Colors.white,
+                  color: AppColors.backgroundColor,
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
                 ),
@@ -29,7 +30,7 @@ class UserProfile extends StatelessWidget {
               Text(
                 'haneen@example.com', // Dummy email
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.8),
+                  color:  AppColors.backgroundColor.withOpacity(0.8),
                   fontSize: 13,
                 ),
               ),

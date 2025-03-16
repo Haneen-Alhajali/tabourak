@@ -3,6 +3,7 @@ import 'screens/auth/login_screen.dart';
 import 'screens/admin/admin_dashboard.dart';
 import 'utils/constants.dart';
 import 'screens/home_screen.dart';
+import '../colors/app_colors.dart'; 
 
 void main() {
   runApp(MyApp());
@@ -14,19 +15,19 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Tabourak Clone',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: Colors.white,
+        primarySwatch:  AppColors.primarySwatch,
+        scaffoldBackgroundColor: AppColors.backgroundColor,
         fontFamily: 'Roboto',
         textTheme: TextTheme(
           displayLarge: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          bodyLarge: TextStyle(fontSize: 16, color: Colors.black87),
+          bodyLarge: TextStyle(fontSize: 16, color: AppColors.textColor),
         ),
       ),
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
         '/': (context) => HomeScreen(),
-        '/login': (context) => LoginScreen(),
+        '/login': (context) => LoginPage(),
         '/admin': (context) => AdminDashboard(),
       },
     );

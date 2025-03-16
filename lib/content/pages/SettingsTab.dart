@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:tabourak/colors/app_colors.dart';
 
 class SettingsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    print("Building SettingsTab"); // Debugging log
     return ListView(
       padding: EdgeInsets.all(16),
       children: [
-        _buildSettingItem(
-          title: 'Page Title',
-          value: 'Meet with Yasmine Ro',
-        ),
+        _buildSettingItem(title: 'Page Title', value: 'Meet with Yasmine Ro'),
         Divider(),
         _buildSettingItem(
           title: 'Page URL',
@@ -24,37 +21,35 @@ class SettingsTab extends StatelessWidget {
         Divider(),
         _buildImageUploadSection(),
         Divider(),
-        _buildSettingItem(
-          title: 'Language',
-          value: 'English',
-        ),
+        _buildSettingItem(title: 'Language', value: 'English'),
       ],
     );
   }
 
   Widget _buildSettingItem({required String title, required String value}) {
-    print("Building SettingItem: $title"); // Debugging log
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
-            SizedBox(height: 4),
-            Text(value),
-          ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: TextStyle(fontWeight: FontWeight.bold,color: AppColors.textColor)),
+              SizedBox(height: 4),
+              Text(
+                value,
+                softWrap: true, 
+                overflow: TextOverflow.visible,
+              ),
+            ],
+          ),
         ),
-        TextButton(
-          onPressed: () {},
-          child: Text('Edit'),
-        ),
+        TextButton(onPressed: () {}, child: Text('Edit',style: TextStyle(fontWeight: FontWeight.bold,color: AppColors.textColorSecond))),
       ],
     );
   }
 
   Widget _buildImageUploadSection() {
-    print("Building ImageUploadSection"); // Debugging log
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -75,12 +70,16 @@ class SettingsTab extends StatelessWidget {
                 children: [
                   ElevatedButton(
                     onPressed: () {},
-                    child: Text('Upload Picture'),
+                      style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.mediumColor,
+              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            ),
+                    child: Text('Upload Picture',style: TextStyle(fontWeight: FontWeight.bold,color: AppColors.textColor)),
                   ),
                   SizedBox(height: 8),
                   Text(
                     'JPG or PNG. For best presentation, should be square and at least 128px by 128px.',
-                    style: TextStyle(color: Colors.grey),
+                    style: TextStyle(color: AppColors.textColorSecond),
                   ),
                 ],
               ),

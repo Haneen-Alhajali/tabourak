@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:tabourak/colors/app_colors.dart';
 
-class CalendarsContent extends StatelessWidget {
+class CalendarsContent extends StatefulWidget {
   const CalendarsContent({Key? key}) : super(key: key);
+
+  @override
+  _CalendarsContentState createState() => _CalendarsContentState();
+}
+
+class _CalendarsContentState extends State<CalendarsContent> {
+  bool _isSyncCalendarChanges = true;  // لحالة Switch الأول
+  bool _isEmailInvitations = false;  // لحالة Switch الثاني
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +25,7 @@ class CalendarsContent extends StatelessWidget {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color: AppColors.textColor,
             ),
           ),
           const SizedBox(height: 8),
@@ -24,7 +33,7 @@ class CalendarsContent extends StatelessWidget {
             'Integrate your calendars to prevent double bookings and have your meetings automatically added.',
             style: TextStyle(
               fontSize: 14,
-              color: Colors.grey,
+              color: AppColors.textColorSecond,
             ),
           ),
           const SizedBox(height: 24),
@@ -50,7 +59,7 @@ class CalendarsContent extends StatelessWidget {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
-            color: Colors.black,
+            color: AppColors.textColor,
           ),
         ),
         const SizedBox(height: 8),
@@ -67,7 +76,7 @@ class CalendarsContent extends StatelessWidget {
                 description: 'Gmail & Google Workspace (aka GSuite) accounts.',
                 buttonText: 'Test Connection',
               ),
-              const Divider(height: 1, color: Colors.grey),
+              const Divider(height: 1, color: AppColors.textColorSecond),
               _buildIntegrationItem(
                 icon: 'images/office365_logo.png',
                 title: 'Office 365 + Outlook',
@@ -102,7 +111,7 @@ class CalendarsContent extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                    color: AppColors.textColorSecond,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -110,7 +119,7 @@ class CalendarsContent extends StatelessWidget {
                   description,
                   style: const TextStyle(
                     fontSize: 14,
-                    color: Colors.grey,
+                    color: AppColors.textColorSecond,
                   ),
                 ),
               ],
@@ -119,7 +128,7 @@ class CalendarsContent extends StatelessWidget {
           ElevatedButton(
             onPressed: () {},
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
+              backgroundColor: AppColors.accentColor,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(4),
               ),
@@ -146,7 +155,7 @@ class CalendarsContent extends StatelessWidget {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
-            color: Colors.black,
+            color: AppColors.textColor,
           ),
         ),
         const SizedBox(height: 8),
@@ -163,28 +172,38 @@ class CalendarsContent extends StatelessWidget {
                 description: 'New meetings will be added to: royasmine05@gmail.com',
                 actionText: 'Change',
               ),
-              const Divider(height: 1, color: Colors.grey),
+              const Divider(height: 1, color: AppColors.textColorSecond),
               _buildBehaviorItem(
                 icon: 'images/available_dates.png',
                 title: 'Availability Calendars',
                 description: 'We\'ll check these calendars for conflicts: royasmine05@gmail.com',
                 actionText: 'Change',
               ),
-              const Divider(height: 1, color: Colors.grey),
+              const Divider(height: 1, color: AppColors.textColorSecond),
               _buildBehaviorItem(
                 icon: 'images/rescheduling.png',
                 title: 'Sync Calendar Changes',
                 description: 'When you delete/move an event in your calendar, we\'ll cancel/reschedule the corresponding meeting.',
                 actionText: 'Toggle',
-                isToggle: true,
+                isToggleSync: true,
+                onToggleChanged: (value) {
+                  setState(() {
+                    _isSyncCalendarChanges = value;
+                  });
+                },
               ),
-              const Divider(height: 1, color: Colors.grey),
+              const Divider(height: 1, color: AppColors.textColorSecond),
               _buildBehaviorItem(
                 icon: 'images/calendar_checked.png',
                 title: 'Email Invitations',
                 description: 'Send an invitation from my calendar to attendees after they schedule a meeting.',
                 actionText: 'Toggle',
-                isToggle: true,
+                isToggleEmail: true,
+                onToggleChanged: (value) {
+                  setState(() {
+                    _isEmailInvitations = value;
+                  });
+                },
               ),
             ],
           ),
@@ -193,61 +212,80 @@ class CalendarsContent extends StatelessWidget {
     );
   }
 
-  Widget _buildBehaviorItem({
-    required String icon,
-    required String title,
-    required String description,
-    required String actionText,
-    bool isToggle = false,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          Image.asset(icon, width: 50, height: 50),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  description,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (isToggle)
-            Switch(
-              value: true,
-              onChanged: (value) {},
-              activeColor: Colors.blue,
-            )
-          else
-            TextButton(
-              onPressed: () {},
-              child: Text(
-                actionText,
+Widget _buildBehaviorItem({
+  required String icon,
+  required String title,
+  required String description,
+  required String actionText,
+  bool isToggleSync = false,
+  bool isToggleEmail = false,
+  ValueChanged<bool>? onToggleChanged,
+}) {
+  return Padding(
+    padding: const EdgeInsets.all(16),
+    child: Row(
+      children: [
+        Image.asset(icon, width: 50, height: 50),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
                 style: const TextStyle(
-                  color: Colors.blue,
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
+                  color: AppColors.textColor,
                 ),
               ),
+              const SizedBox(height: 4),
+              Text(
+                description,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: AppColors.textColorSecond,
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (isToggleEmail)
+          Switch(
+            value: _isEmailInvitations,
+            onChanged: (value) {
+              setState(() {
+                _isEmailInvitations = value;
+              });
+            },
+            activeColor: AppColors.accentColor,
+            inactiveThumbColor: AppColors.textColorSecond,
+          )
+        else if (isToggleSync)
+          Switch(
+            value: _isSyncCalendarChanges,
+            onChanged: (value) {
+              setState(() {
+                _isSyncCalendarChanges = value;
+              });
+            },
+            activeColor: AppColors.accentColor,
+            inactiveThumbColor: AppColors.textColorSecond,
+          )
+        else
+          TextButton(
+            onPressed: () {},
+            child: Text(
+              actionText,
+              style: const TextStyle(
+                color: AppColors.primaryColor,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-        ],
-      ),
-    );
-  }
+          ),
+      ],
+    ),
+  );
+}
+
 }

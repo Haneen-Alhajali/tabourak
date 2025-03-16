@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tabourak/colors/app_colors.dart';
 
 class NavButton extends StatelessWidget {
   final IconData icon;
@@ -18,19 +19,19 @@ class NavButton extends StatelessWidget {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
       decoration: BoxDecoration(
-        color: isActive ? Colors.blue[800] : Colors.transparent,
+        color: isActive ? AppColors.accentColor : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
       ),
       child: ListTile(
         contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 8), // Reduced padding
         title: Row(
           children: [
-            Icon(icon, color: Colors.white, size: 22), // Reduced icon size
+            Icon(icon, color: AppColors.backgroundColor, size: 22), // Reduced icon size
             SizedBox(width: 6), // Reduced space between icon and label
             Text(
               label,
               style: TextStyle(
-                color: Colors.white,
+                color: AppColors.backgroundColor,
                 fontSize: 16, // Reduced font size
               ),
             ),

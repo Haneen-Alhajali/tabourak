@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tabourak/colors/app_colors.dart';
 
 class CustomTab extends StatelessWidget {
   final String title;
@@ -21,14 +22,14 @@ class CustomTab extends StatelessWidget {
           style: TextStyle(
             fontSize: 16,
             fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-            color: isActive ? Colors.blue : Colors.grey,
+            color: isActive ? AppColors.primaryColor : AppColors.textColorSecond,
           ),
         ),
         if (isActive)
           Container(
             height: 3,
             width: 40,
-            color: Colors.blue,
+            color: AppColors.primaryColor,
           ),
         if (hasBadge)
           Container(

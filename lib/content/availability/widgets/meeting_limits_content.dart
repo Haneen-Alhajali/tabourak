@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tabourak/colors/app_colors.dart';
 
 class MeetingLimitsContent extends StatelessWidget {
   const MeetingLimitsContent({Key? key}) : super(key: key);
@@ -21,11 +22,11 @@ class MeetingLimitsContent extends StatelessWidget {
           'Rules that limit the number of meetings that can be scheduled with you.',
           style: TextStyle(
             fontSize: 14,
-            color: Colors.grey,
+            color: AppColors.textColorSecond,
           ),
         ),
         const SizedBox(height: 24),
-        const Divider(color: Color.fromARGB(255, 241, 241, 241),),
+        const Divider(color:AppColors.mediumColor,),
         const SizedBox(height: 24),
 
         // Maximum Meetings Section
@@ -39,7 +40,7 @@ class MeetingLimitsContent extends StatelessWidget {
         const SizedBox(height: 24),
 
         // Divider
-        const Divider(color: Color.fromARGB(255, 241, 241, 241),),
+        const Divider(color: AppColors.mediumColor,),
         const SizedBox(height: 24),
 
         // Maximum Meeting Hours Section
@@ -51,7 +52,7 @@ class MeetingLimitsContent extends StatelessWidget {
           label2: 'Hours Per Week',
         ),
         const SizedBox(height: 24),
-        const Divider(color: Color.fromARGB(255, 241, 241, 241),),
+        const Divider(color: AppColors.mediumColor,),
 
       ],
     );
@@ -70,7 +71,7 @@ class MeetingLimitsContent extends StatelessWidget {
         // Title and Icon
         Row(
           children: [
-            Icon(icon, size: 24, color: Colors.blue),
+            Icon(icon, size: 24, color: AppColors.primaryColor),
             const SizedBox(width: 8),
             Text(
               title,
@@ -88,7 +89,7 @@ class MeetingLimitsContent extends StatelessWidget {
           description,
           style: const TextStyle(
             fontSize: 13,
-            color: Colors.grey,
+            color:AppColors.textColorSecond,
           ),
         ),
         const SizedBox(height: 16),
@@ -118,7 +119,7 @@ class MeetingLimitsContent extends StatelessWidget {
           style: const TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.bold,
-            color: Colors.grey,
+            color: AppColors.textColorSecond,
           ),
         ),
         const SizedBox(height: 8),

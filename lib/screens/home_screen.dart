@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:tabourak/colors/app_colors.dart';
 import '../widgets/sidebar.dart';
 import '../widgets/main_content.dart';
 
@@ -43,7 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
             GestureDetector(
               onTap: _closeSidebar,
               child: Container(
-                color: Colors.black.withOpacity(0.3),
+                color: AppColors.textColor.withOpacity(0.3),
               ),
             ),
           if (_isSidebarExpanded)
@@ -66,8 +67,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.only(left: 32, bottom: 32), // Added margin
                 child: FloatingActionButton(
                   onPressed: _toggleSidebar,
-                  backgroundColor: Colors.blue, // Hamburger button background color
-                  child: Icon(Icons.menu, color: Colors.white),
+                  backgroundColor: AppColors.primaryColor, // Hamburger button background color
+                  child: Icon(Icons.menu, color: AppColors.backgroundColor),
                 ),
               ),
             ),
