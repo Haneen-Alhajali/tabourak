@@ -33,21 +33,48 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.backgroundColor,
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Create Account", style: Theme.of(context).textTheme.titleLarge),
+            Text("SIGN UP FOR YOUR ACCOUNT", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textColor)),
             const SizedBox(height: 20),
-            TextField(controller: _emailController, decoration: const InputDecoration(labelText: "Email")),
+            TextField(
+              controller: _emailController,
+              decoration: InputDecoration(
+                labelText: "Email",
+                labelStyle: TextStyle(color: AppColors.textColorSecond),
+                border: OutlineInputBorder(),
+                filled: true,
+                fillColor: AppColors.lightcolor,
+              ),
+            ),
             const SizedBox(height: 10),
-            TextField(controller: _passwordController, obscureText: true, decoration: const InputDecoration(labelText: "Password")),
+            TextField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: "Password",
+                labelStyle: TextStyle(color: AppColors.textColorSecond),
+                border: OutlineInputBorder(),
+                filled: true,
+                fillColor: AppColors.lightcolor,
+              ),
+            ),
             const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(onPressed: _register, child: const Text("Sign Up")),
+              child: ElevatedButton(
+                onPressed: _register,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryColor,
+                  padding: EdgeInsets.symmetric(vertical: 15),
+                ),
+                child: Text("SIGN UP", style: TextStyle(color: Colors.white)),
+              ),
             ),
           ],
         ),
