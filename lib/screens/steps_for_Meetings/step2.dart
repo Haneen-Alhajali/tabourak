@@ -48,33 +48,33 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
     }
   }
 
-  void _copyToOtherDays(String sourceDay, TimeRange sourceRange) async {
+  void _copyToOtherDays(String sourceDay) async {
     List<String> days = availability.keys.toList();
     List<String> selectedDays = [];
 
     await showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
             title: Text("Copy to other days"),
             content: Column(
               mainAxisSize: MainAxisSize.min,
-              children:
-                  days.where((d) => d != sourceDay).map((day) {
-                    return CheckboxListTile(
-                      title: Text(day),
-                      value: selectedDays.contains(day),
-                      onChanged: (checked) {
-                        setState(() {
-                          if (checked == true) {
-                            selectedDays.add(day);
-                          } else {
-                            selectedDays.remove(day);
-                          }
-                        });
-                      },
-                    );
-                  }).toList(),
+              children: days.where((d) => d != sourceDay).map((day) {
+                return CheckboxListTile(
+                  title: Text(day),
+                  value: selectedDays.contains(day),
+                  onChanged: (checked) {
+                    setState(() {
+                      if (checked == true) {
+                        selectedDays.add(day);
+                      } else {
+                        selectedDays.remove(day);
+                      }
+                    });
+                  },
+                );
+              }).toList(),
             ),
             actions: [
               TextButton(
@@ -85,9 +85,8 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
                 onPressed: () {
                   setState(() {
                     for (String day in selectedDays) {
-                      availability[day]!.add(
-                        TimeRange(sourceRange.start, sourceRange.end),
-                      );
+                      // Add appointments to the selected days without clearing existing ones
+                      availability[day]!.addAll(availability[sourceDay]!);
                     }
                   });
                   Navigator.pop(context);
@@ -95,7 +94,9 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
                 child: Text("Copy"),
               ),
             ],
-          ),
+          );
+        },
+      ),
     );
   }
 
@@ -123,106 +124,97 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
               SizedBox(height: 20),
               Expanded(
                 child: ListView(
-                  children:
-                      availability.keys.map((day) {
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                  children: availability.keys.map((day) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
                           children: [
                             Text(
                               day,
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
-                            ...availability[day]!.map((range) {
-                              return Container(
-                                margin: EdgeInsets.symmetric(vertical: 5),
-                                padding: EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: AppColors.textColorSecond,
+                            Spacer(),
+                            IconButton(
+                              icon: Icon(
+                                Icons.copy,
+                                color: AppColors.primaryColor,
+                              ),
+                              onPressed: () => _copyToOtherDays(day),
+                            ),
+                          ],
+                        ),
+                        ...availability[day]!.map((range) {
+                          return Container(
+                            margin: EdgeInsets.symmetric(vertical: 5),
+                            padding: EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: AppColors.textColorSecond,
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                              color: AppColors.backgroundColor,
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () => _pickTime(context, true, range, day),
+                                    child: _timeBox(range.start),
                                   ),
-                                  borderRadius: BorderRadius.circular(8),
-                                  color: AppColors.backgroundColor,
                                 ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: GestureDetector(
-                                        onTap:
-                                            () => _pickTime(
-                                              context,
-                                              true,
-                                              range,
-                                              day,
-                                            ),
-                                        child: _timeBox(range.start),
-                                      ),
-                                    ),
-                                    Text(" - "),
-                                    Expanded(
-                                      child: GestureDetector(
-                                        onTap:
-                                            () => _pickTime(
-                                              context,
-                                              false,
-                                              range,
-                                              day,
-                                            ),
-                                        child: _timeBox(range.end),
-                                      ),
-                                    ),
-                                    IconButton(
-                                      icon: Icon(
-                                        Icons.copy,
-                                        color: AppColors.primaryColor,
-                                      ),
-                                      onPressed:
-                                          () => _copyToOtherDays(day, range),
-                                    ),
-                                    IconButton(
-                                      icon: Icon(
-                                        Icons.close,
-                                        color: AppColors.textColor,
-                                      ),
-                                      onPressed: () {
-                                        setState(() {
-                                          availability[day]!.remove(range);
-                                        });
-                                      },
-                                    ),
-                                  ],
+                                Text(" - "),
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () => _pickTime(context, false, range, day),
+                                    child: _timeBox(range.end),
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.close,
+                                    color: AppColors.textColor,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      availability[day]!.remove(range);
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                        TextButton(
+                          onPressed: () {
+                            setState(() {
+                              availability[day]!.add(
+                                TimeRange(
+                                  TimeOfDay(hour: 9, minute: 0),
+                                  TimeOfDay(hour: 17, minute: 0),
                                 ),
                               );
-                            }).toList(),
-                            TextButton(
-                              onPressed: () {
-                                setState(() {
-                                  availability[day]!.add(
-                                    TimeRange(
-                                      TimeOfDay(hour: 9, minute: 0),
-                                      TimeOfDay(hour: 17, minute: 0),
-                                    ),
-                                  );
-                                });
-                              },
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.add,
-                                    color: AppColors.primaryColor,
-                                  ),
-                                  Text(
-                                    "Add Time",
-                                    style: TextStyle(
-                                      color: AppColors.primaryColor,
-                                    ),
-                                  ),
-                                ],
+                            });
+                          },
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.add,
+                                color: AppColors.primaryColor,
                               ),
-                            ),
-                            SizedBox(height: 10),
-                          ],
-                        );
-                      }).toList(),
+                              Text(
+                                "Add Time",
+                                style: TextStyle(
+                                  color: AppColors.primaryColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                      ],
+                    );
+                  }).toList(),
                 ),
               ),
               SwitchListTile(
@@ -249,10 +241,8 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
                     }
                   });
                 },
-
-                activeColor: AppColors.primaryColor, 
-                inactiveThumbColor:
-                    AppColors.textColorSecond, 
+                activeColor: AppColors.primaryColor,
+                inactiveThumbColor: AppColors.textColorSecond,
               ),
               ElevatedButton(
                 onPressed: () {

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tabourak/colors/app_colors.dart';
 import 'package:tabourak/screens/auth/signup_screen.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:tabourak/screens/steps_for_Meetings/step1.dart';
 
 class LoginPage extends StatefulWidget {
@@ -12,7 +13,9 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final supabase = Supabase.instance.client;
+  bool _obscureText = true;
+
+  final String apiUrl = 'http://192.168.1.127:3000/api/auth/login';
 
   void _login() async {
     String email = _emailController.text.trim();
@@ -24,31 +27,22 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     try {
-      final AuthResponse response = await supabase.auth.signInWithPassword(
-        email: email,
-        password: password,
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"email": email, "password": password}),
       );
 
-      if (response.session != null && response.user != null) {
+      if (response.statusCode == 200) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => AppointmentSetupScreen()),
         );
       } else {
-        _showErrorDialog(
-          "Login failed. Please check your credentials and try again.",
-        );
-      }
-    } on AuthException catch (e) {
-      if (e.message.toLowerCase().contains("invalid login credentials")) {
-        _showErrorDialog("Incorrect email or password. Please try again.");
-      } else if (e.message.toLowerCase().contains("user not found")) {
-        _showErrorDialog("No account found with this email. Please sign up.");
-      } else {
-        _showErrorDialog("Login failed: ${e.message}");
+        _showErrorDialog("Login failed. Please check your email or password.");
       }
     } catch (e) {
-      _showErrorDialog("An unexpected error occurred. Please try again later.");
+      _showErrorDialog("Error: ${e.toString()}");
     }
   }
 
@@ -81,64 +75,102 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              AppColors.accentColor,
-              AppColors.backgroundColor,
-            ], 
-            stops: [0.1, 0.9], 
-
-            begin: Alignment.topLeft, 
-            end: Alignment.bottomRight, 
+          image: DecorationImage(
+            image: AssetImage('images/loginBackground.png'),
+            fit: BoxFit.cover,
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 50),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                "LOGIN TO CONTINUE",
+                "LOGIN TO TABOURAK",
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textColor,
+                  color: AppColors.backgroundColor,
                 ),
               ),
-              const SizedBox(height: 20),
+
+              const SizedBox(height: 40),
+
+              // Email
               TextField(
                 controller: _emailController,
+                style: TextStyle(color: AppColors.textColorSecond),
+
                 decoration: InputDecoration(
-                  labelText: "Email",
-                  labelStyle: TextStyle(color: AppColors.textColorSecond),
-                  border: OutlineInputBorder(),
+                  hintText: "Email",
+                  hintStyle: TextStyle(
+                    color: const Color.fromARGB(255, 153, 153, 153),
+                  ),
+                  prefixIcon: Icon(
+                    Icons.email,
+                    color: AppColors.textColorSecond,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
                   filled: true,
-                  fillColor: AppColors.lightcolor,
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: "Password",
-                  labelStyle: TextStyle(color: AppColors.textColorSecond),
-                  border: OutlineInputBorder(),
-                  filled: true,
-                  fillColor: AppColors.lightcolor,
+                  fillColor: AppColors.backgroundColor,
                 ),
               ),
               const SizedBox(height: 20),
+
+              // Password
+              TextField(
+                controller: _passwordController,
+                style: TextStyle(color: AppColors.textColorSecond),
+
+                obscureText: _obscureText,
+                decoration: InputDecoration(
+                  hintText: "Password",
+                  hintStyle: TextStyle(
+                    color: const Color.fromARGB(255, 153, 153, 153),
+                  ),
+                  prefixIcon: Icon(
+                    Icons.lock,
+                    color: AppColors.textColorSecond,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  filled: true,
+                  fillColor: AppColors.backgroundColor,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscureText ? Icons.visibility : Icons.visibility_off,
+                      color: AppColors.primaryColor,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscureText = !_obscureText;
+                      });
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Login Button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: _login,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryColor,
+                    backgroundColor: AppColors.backgroundColor,
                     padding: EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
                   ),
-                  child: Text("LOGIN", style: TextStyle(color: Colors.white)),
+                  child: Text(
+                    "LOGIN",
+                    style: TextStyle(color: AppColors.primaryColor),
+                  ),
                 ),
               ),
               Center(
@@ -151,7 +183,7 @@ class _LoginPageState extends State<LoginPage> {
                   },
                   child: Text(
                     "Don't have an account? SIGN UP NOW",
-                    style: TextStyle(color: AppColors.primaryColor),
+                    style: TextStyle(color: AppColors.backgroundColor),
                   ),
                 ),
               ),

@@ -3,7 +3,6 @@ import 'package:tabourak/colors/app_colors.dart';
 import 'widgets/schedule_manager_section.dart';
 import 'widgets/recurring_weekly_hours_section.dart';
 import 'widgets/date_specific_hours_section.dart';
-import 'widgets/custom_widgets.dart';
 import 'widgets/meeting_limits_content.dart'; // Import the new file for Meeting Limits
 import 'widgets/calendars_content.dart'; // Import the new file for Calendars
 
