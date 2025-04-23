@@ -4,7 +4,7 @@ const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: process.env.DATABASE_PASSWORD,
-  database: 'tabourak_project_db',
+  database: 'tabourak_db',
 });
 
 db.connect((err) => {
