@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:tabourak/colors/app_colors.dart';
 import 'package:tabourak/screens/auth/signup_screen.dart';
 import 'package:http/http.dart' as http;
+import 'package:tabourak/screens/home_screen.dart';
 import 'dart:convert';
-import 'package:tabourak/screens/steps_for_Meetings/step1.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -11,18 +11,45 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  /////////////////////ADD FOR VALID EMAIL
+  Future<bool> _isEmailValid(String email) async {
+    final uri = Uri.parse(
+      'https://emailvalidation.abstractapi.com/v1/?api_key=b9d12753d3ae40529fe4cf37caf8592f&email=$email',
+    );
+
+    try {
+      final response = await http.get(uri);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['deliverability'] == 'DELIVERABLE';
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print('Error verifying email: $e');
+      return false;
+    }
+  }
+  ///////////////////////////////////END OF VALID EMAIL
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscureText = true;
 
-  final String apiUrl = 'http://192.168.1.127:3000/api/auth/login';
-
+  final String apiUrl = 'http://192.168.1.140:3000/api/auth/login';
+  //////////////////////////////////////////////////////
   void _login() async {
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
       _showErrorDialog("Email and password cannot be empty.");
+      return;
+    }
+
+    bool isValidEmail = await _isEmailValid(email);
+    if (!isValidEmail) {
+      _showErrorDialog("Invalid email. Please enter a valid email address.");
       return;
     }
 
@@ -36,15 +63,16 @@ class _LoginPageState extends State<LoginPage> {
       if (response.statusCode == 200) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => AppointmentSetupScreen()),
+          MaterialPageRoute(builder: (context) => HomeScreen()),
         );
       } else {
-        _showErrorDialog("Login failed. Please check your email or password.");
+        _showErrorDialog("Login failed. Please check your password.");
       }
     } catch (e) {
       _showErrorDialog("Error: ${e.toString()}");
     }
   }
+
 
   void _showErrorDialog(String message) {
     showDialog(
@@ -173,6 +201,27 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
+
+              const SizedBox(height: 10),
+            /*  SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: _Aouth,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryColor,
+                    padding: EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  icon: Icon(Icons.login, color: Colors.white),
+                  label: Text(
+                    "LOGIN WITH AUTH0",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+*/
               Center(
                 child: TextButton(
                   onPressed: () {

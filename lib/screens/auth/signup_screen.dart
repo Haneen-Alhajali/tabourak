@@ -11,12 +11,35 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+
+  /////////////////////ADD FOR VALID EMAIL
+  Future<bool> _isEmailValid(String email) async {
+    final uri = Uri.parse(
+      'https://emailvalidation.abstractapi.com/v1/?api_key=b9d12753d3ae40529fe4cf37caf8592f&email=$email',
+    );
+
+    try {
+      final response = await http.get(uri);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['deliverability'] == 'DELIVERABLE';
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print('Error verifying email: $e');
+      return false;
+    }
+  }
+  ///////////////////////////////////END OF VALID EMAIL
+
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscureText = true;
 
-  final String apiUrl = 'http://192.168.1.127:3000/api/auth/register';
+  final String apiUrl = 'http://192.168.1.140:3000/api/auth/register';
 
   void _register() async {
     String username = _usernameController.text.trim();
@@ -27,6 +50,13 @@ class _RegisterPageState extends State<RegisterPage> {
       _showErrorDialog("All fields must be filled.");
       return;
     }
+
+      bool isValidEmail = await _isEmailValid(email);
+    if (!isValidEmail) {
+      _showErrorDialog("Invalid email. Please enter a valid email address.");
+      return;
+    }
+
 
     try {
       final response = await http.post(
@@ -48,6 +78,7 @@ class _RegisterPageState extends State<RegisterPage> {
         _showErrorDialog("Registration failed. Please try again.");
       }
     } catch (e) {
+      print(e.toString());
       _showErrorDialog("Error: ${e.toString()}");
     }
   }

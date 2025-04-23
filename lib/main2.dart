@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tabourak/screens/steps_for_Meetings/step2.dart';
+import 'package:tabourak/screens/home_screen.dart';
 import 'screens/onboarding_screen/onboarding_screen.dart';
 
 
@@ -11,7 +11,7 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) {  
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Splash & Onboarding',
@@ -49,7 +49,7 @@ class _SplashScreenState extends State<SplashScreen> {
       
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => AvailabilityScreen()),
+        MaterialPageRoute(builder: (context) => HomeScreen()),
       );
     }
   }
