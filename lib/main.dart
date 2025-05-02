@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/admin/admin_dashboard.dart';
-import 'utils/constants.dart';
 import 'screens/home_screen.dart';
 import '../colors/app_colors.dart'; 
 
@@ -11,7 +10,7 @@ void main() {
 
 class MyApp extends StatelessWidget {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) J{
     return MaterialApp(
       title: 'Tabourak Clone',
       theme: ThemeData(

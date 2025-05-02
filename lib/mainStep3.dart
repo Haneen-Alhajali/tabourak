@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tabourak/screens/home_screen.dart';
+import 'package:tabourak/screens/steps_for_Meetings/step3.dart';
 import 'screens/onboarding_screen/onboarding_screen.dart';
 
 void main() async {
-
   WidgetsFlutterBinding.ensureInitialized();
   runApp(MyApp());
 }
@@ -41,12 +41,12 @@ class _SplashScreenState extends State<SplashScreen> {
       await prefs.setBool('isFirstTime', false);
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => onBoardingScreen()),
+        MaterialPageRoute(builder: (context) => CalendarPage()),
       );
     } else {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
+        MaterialPageRoute(builder: (context) => CalendarPage()),
       );
     }
   }

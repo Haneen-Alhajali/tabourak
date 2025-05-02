@@ -21,6 +21,7 @@ class AppointmentSetupScreen extends StatefulWidget {
   _AppointmentSetupScreenState createState() => _AppointmentSetupScreenState();
 }
 
+
 class _AppointmentSetupScreenState extends State<AppointmentSetupScreen> {
   List<bool> isSelected = [true, true, false];
 

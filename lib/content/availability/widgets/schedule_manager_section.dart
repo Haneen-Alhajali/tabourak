@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:tabourak/colors/app_colors.dart';
-import 'custom_widgets.dart';
 
 class ScheduleManagerSection extends StatelessWidget {
   const ScheduleManagerSection({Key? key}) : super(key: key);

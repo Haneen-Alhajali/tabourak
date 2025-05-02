@@ -7,6 +7,7 @@ class AvailabilityScreen extends StatefulWidget {
   _AvailabilityScreenState createState() => _AvailabilityScreenState();
 }
 
+
 class _AvailabilityScreenState extends State<AvailabilityScreen> {
   Map<String, List<TimeRange>> availability = {
     "Monday": [
@@ -250,7 +251,7 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
                     context,
                     PageRouteBuilder(
                       transitionDuration: Duration(milliseconds: 500),
-                      pageBuilder: (_, __, ___) => ConnectCalendarPage(),
+                      pageBuilder: (_, __, ___) => CalendarPage(),
                       transitionsBuilder: (_, animation, __, child) {
                         return SlideTransition(
                           position: Tween<Offset>(

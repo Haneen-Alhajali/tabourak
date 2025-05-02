@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'custom_widgets.dart';
 
 class RecurringWeeklyHoursSection extends StatelessWidget {
   const RecurringWeeklyHoursSection({Key? key}) : super(key: key);

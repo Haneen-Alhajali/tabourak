@@ -38,7 +38,7 @@ dependencies:
   smooth_page_indicator: ^1.0.0
   lottie: ^2.6.0
   supabase_flutter: ^2.8.4
-  auth0_flutter: ^1.0.0
+  google_sign_in: ^6.1.5
 
 
   # The following adds the Cupertino Icons font to your application.
