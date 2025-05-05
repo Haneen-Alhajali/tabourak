@@ -10,7 +10,7 @@ void main() {
 
 class MyApp extends StatelessWidget {
   @override
-  Widget build(BuildContext context) J{
+  Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Tabourak Clone',
       theme: ThemeData(
