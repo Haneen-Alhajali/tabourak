@@ -2,23 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:tabourak/colors/app_colors.dart';
 
 class MeetingsContent extends StatelessWidget {
-
-
-  final meetings = [
-  {
-    'date': 'Friday\nMay 2, 2025',
-    'time': '9:30 AM - 10:00 AM',
-    'type': 'In-Person Meeting',
-    'name': 'shahd yaseen',
-  },
-  {
-    'date': 'Wednesday\nApril 30, 2025',
-    'time': '10:30 AM - 11:00 AM',
-    'type': 'In-Person Meeting',
-    'name': 'shahd yaseen',
-  },
-];
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -153,95 +136,31 @@ class MeetingsContent extends StatelessWidget {
         SizedBox(height: 6),
         Divider(),
         SizedBox(height: 16),
-
-        // Replace "No meetings found" section with:
-        Expanded(
-          child: ListView(
+        // No Meetings Found
+        Center(
+          child: Column(
             children: [
-              for (var meeting in meetings) ...[
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Text(
-                    meeting['date']!,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textColorSecond,
-                    ),
-                  ),
+              Image.asset('images/no-event-bg.png', width: 400),
+              SizedBox(height: 16),
+              Text(
+                'No meetings found',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textColor,
                 ),
-                MeetingCard(
-                  time: meeting['time']!,
-                  type: meeting['type']!,
-                  name: meeting['name']!,
+              ),
+              Text(
+                'Try removing or adjusting your filters.',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: AppColors.textColorSecond,
                 ),
-              ],
+              ),
             ],
           ),
         ),
       ],
-    );
-  }
-}
-
-////////////////////////////////////////////////////////////////////////////////////////
-
-class MeetingCard extends StatelessWidget {
-  final String time;
-  final String type;
-  final String name;
-
-  const MeetingCard({
-    required this.time,
-    required this.type,
-    required this.name,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      margin: EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      child: Padding(
-        padding: EdgeInsets.all(12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CircleAvatar(
-              radius: 20,
-              child: Text(
-                name.substring(0, 2).toUpperCase(),
-                style: TextStyle(color: Colors.white),
-              ),
-              backgroundColor: AppColors.mediumColor,
-            ),
-            SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    time,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: AppColors.textColor,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    type,
-                    style: TextStyle(color: AppColors.textColorSecond),
-                  ),
-                  Text(name, style: TextStyle(color: AppColors.textColor)),
-                ],
-              ),
-            ),
-            Icon(Icons.more_vert, color: AppColors.textColor),
-          ],
-        ),
-      ),
     );
   }
 }
