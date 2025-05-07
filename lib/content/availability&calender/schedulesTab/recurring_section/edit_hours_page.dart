@@ -1,7 +1,7 @@
 // lib/content/availability/edit_hours_page.dart
 import 'package:flutter/material.dart';
 import 'package:tabourak/colors/app_colors.dart';
-import 'widgets/availability_editor.dart';
+import 'availability_editor.dart';
 import 'package:tabourak/models/time_range.dart';
 
 class EditHoursPage extends StatefulWidget {

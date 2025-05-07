@@ -1,8 +1,8 @@
 // lib/content/availability/widgets/schedule_manager_section.dart
 import 'package:flutter/material.dart';
 import 'package:tabourak/colors/app_colors.dart';
-import 'package:tabourak/content/availability/widgets/create_schedule_modal.dart';
-import 'package:tabourak/content/availability/widgets/edit_schedule_modal.dart';
+import 'package:tabourak/content/availability&calender/schedulesTab/create_schedule_modal.dart';
+import 'package:tabourak/content/availability&calender/schedulesTab/edit_schedule_modal.dart';
 
 class ScheduleManagerSection extends StatefulWidget {
   const ScheduleManagerSection({Key? key}) : super(key: key);

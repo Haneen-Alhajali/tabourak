@@ -1,12 +1,13 @@
 // lib/content/availability/availability_content.dart
 import 'package:flutter/material.dart';
 import 'package:tabourak/colors/app_colors.dart';
-import 'widgets/schedule_manager_section.dart';
-import 'widgets/recurring_weekly_hours_section.dart';
-import 'widgets/date_specific_hours_section.dart';
+import 'schedulesTab/schedule_manager_section.dart';
+import 'schedulesTab/recurring_section/recurring_weekly_hours_section.dart';
+import 'schedulesTab/date_section/date_specific_hours_section.dart';
 import 'widgets/meeting_limits_content.dart';
 import 'widgets/calendars_content.dart';
 import 'package:tabourak/models/time_range.dart';
+import 'package:intl/intl.dart';
 
 class AvailabilityContent extends StatefulWidget {
   const AvailabilityContent({Key? key}) : super(key: key);
@@ -18,13 +19,19 @@ class AvailabilityContent extends StatefulWidget {
 class _AvailabilityContentState extends State<AvailabilityContent> {
   String _selectedTab = 'Schedules';
   final Map<String, List<TimeRange>> availability = {
-    "Sunday": [],
+    "Sunday": [TimeRange(TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 17, minute: 0))],
     "Monday": [TimeRange(TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 17, minute: 0))],
     "Tuesday": [TimeRange(TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 17, minute: 0))],
     "Wednesday": [TimeRange(TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 17, minute: 0))],
     "Thursday": [TimeRange(TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 17, minute: 0))],
-    "Friday": [TimeRange(TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 17, minute: 0))],
+    "Friday": [],
     "Saturday": [],
+  };
+
+  // Add seasonal hours data
+  final Map<DateTime, List<TimeRange>> seasonalHours = {
+    DateTime(2023, 12, 25): [TimeRange(TimeOfDay(hour: 10, minute: 0), TimeOfDay(hour: 14, minute: 0))],
+    DateTime(2024, 1, 1): [TimeRange(TimeOfDay(hour: 12, minute: 0), TimeOfDay(hour: 16, minute: 0))],
   };
 
   @override
@@ -68,7 +75,9 @@ class _AvailabilityContentState extends State<AvailabilityContent> {
               children: [
                 const ScheduleManagerSection(),
                 const SizedBox(height: 32),
-                RecurringWeeklyHoursSection(availability: availability),
+                RecurringWeeklyHoursSection(
+                  availability: availability,
+                ),
                 const SizedBox(height: 32),
                 const DateSpecificHoursSection(),
               ],
@@ -125,6 +134,137 @@ class _AvailabilityContentState extends State<AvailabilityContent> {
     );
   }
 }
+// // lib/content/availability/availability_content.dart
+// import 'package:flutter/material.dart';
+// import 'package:tabourak/colors/app_colors.dart';
+// import 'widgets/schedule_manager_section.dart';
+// import 'widgets/recurring_weekly_hours_section.dart';
+// import 'widgets/date_specific_hours_section.dart';
+// import 'widgets/meeting_limits_content.dart';
+// import 'widgets/calendars_content.dart';
+// import 'package:tabourak/models/time_range.dart';
+
+// class AvailabilityContent extends StatefulWidget {
+//   const AvailabilityContent({Key? key}) : super(key: key);
+
+//   @override
+//   _AvailabilityContentState createState() => _AvailabilityContentState();
+// }
+
+// class _AvailabilityContentState extends State<AvailabilityContent> {
+//   String _selectedTab = 'Schedules';
+//   final Map<String, List<TimeRange>> availability = {
+//     "Sunday": [],
+//     "Monday": [TimeRange(TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 17, minute: 0))],
+//     "Tuesday": [TimeRange(TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 17, minute: 0))],
+//     "Wednesday": [TimeRange(TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 17, minute: 0))],
+//     "Thursday": [TimeRange(TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 17, minute: 0))],
+//     "Friday": [TimeRange(TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 17, minute: 0))],
+//     "Saturday": [],
+//   };
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return SingleChildScrollView(
+//       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           const Text(
+//             'Availability & Calendars',
+//             style: TextStyle(
+//               fontSize: 24,
+//               fontWeight: FontWeight.bold,
+//               color: AppColors.textColor,
+//             ),
+//           ),
+//           const SizedBox(height: 16),
+
+//           Container(
+//             decoration: BoxDecoration(
+//               border: Border(
+//                 bottom: BorderSide(
+//                   color: Colors.grey.shade300,
+//                   width: 1,
+//                 ),
+//               ),
+//             ),
+//             child: Row(
+//               children: [
+//                 _buildTab('Schedules', Icons.schedule),
+//                 _buildTab('Calendars', Icons.calendar_today),
+//                 _buildTab('Meeting Limits', Icons.lock_clock),
+//               ],
+//             ),
+//           ),
+//           const SizedBox(height: 24),
+
+//           if (_selectedTab == 'Schedules')
+//             Column(
+//               children: [
+//                 const ScheduleManagerSection(),
+//                 const SizedBox(height: 32),
+//                 RecurringWeeklyHoursSection(availability: availability),
+//                 const SizedBox(height: 32),
+//                 const DateSpecificHoursSection(),
+//               ],
+//             ),
+//           if (_selectedTab == 'Calendars')
+//             const CalendarsContent(),
+//           if (_selectedTab == 'Meeting Limits')
+//             const MeetingLimitsContent(),
+//         ],
+//       ),
+//     );
+//   }
+
+//   Widget _buildTab(String title, IconData icon) {
+//     final bool isActive = _selectedTab == title;
+//     return Flexible(
+//       child: InkWell(
+//         onTap: () {
+//           setState(() {
+//             _selectedTab = title;
+//           });
+//         },
+//         child: Container(
+//           padding: const EdgeInsets.symmetric(vertical: 12),
+//           decoration: BoxDecoration(
+//             border: Border(
+//               bottom: BorderSide(
+//                 color: isActive ? AppColors.primaryColor : Colors.transparent,
+//                 width: 2,
+//               ),
+//             ),
+//           ),
+//           child: Row(
+//             mainAxisAlignment: MainAxisAlignment.center,
+//             children: [
+//               Icon(
+//                 icon,
+//                 size: 20,
+//                 color: isActive ? AppColors.primaryColor : AppColors.textColorSecond,
+//               ),
+//               const SizedBox(width: 4),
+//               Text(
+//                 title,
+//                 style: TextStyle(
+//                   fontSize: 13,
+//                   fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+//                   color: isActive ? AppColors.primaryColor : AppColors.textColorSecond,
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+
+
+
 
 
 // // lib\content\availability\availability_content.dart

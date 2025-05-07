@@ -19,31 +19,28 @@ class MeetingsContent extends StatelessWidget {
               ),
             ),
             ElevatedButton(
-              onPressed: () {
-
-              },
+              onPressed: () {},
               style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: AppColors.mediumColor, 
+                foregroundColor: Colors.white,
+                backgroundColor: AppColors.mediumColor,
               ),
               child: Text(
                 '+ Schedule Meeting',
-                style: TextStyle(
-                  color: AppColors.textColor,
-                ), 
+                style: TextStyle(color: AppColors.textColor),
               ),
             ),
           ],
         ),
         SizedBox(height: 16),
         // Filters and Search
+        // Filters and Search + Menu
         Row(
           children: [
+            // Dropdown Filter
             Container(
               padding: EdgeInsets.only(left: 8, top: 6, bottom: 6),
               decoration: BoxDecoration(
-                border: Border.all(
-                  color: AppColors.textColor,
-                ), // Use only primary color (turquoise)
+                border: Border.all(color: AppColors.textColor),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: DropdownButtonHideUnderline(
@@ -85,11 +82,10 @@ class MeetingsContent extends StatelessWidget {
               ),
             ),
             SizedBox(width: 12),
+
+            // Search Field
             Expanded(
               child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(4),
-                ),
                 height: 40,
                 child: TextField(
                   decoration: InputDecoration(
@@ -111,8 +107,32 @@ class MeetingsContent extends StatelessWidget {
                 ),
               ),
             ),
+
+            // Menu Button
+            PopupMenuButton<String>(
+              icon: Icon(Icons.more_vert, color: AppColors.textColor),
+              onSelected: (value) {
+                if (value == 'export') {
+                  // TODO: export functionality
+                }
+              },
+              itemBuilder:
+                  (context) => [
+                    PopupMenuItem<String>(
+                      value: 'export',
+                      child: Row(
+                        children: [
+                          Icon(Icons.download, color: AppColors.textColor),
+                          SizedBox(width: 8),
+                          Text('Export Meeting Data (CSV)'),
+                        ],
+                      ),
+                    ),
+                  ],
+            ),
           ],
         ),
+
         SizedBox(height: 6),
         Divider(),
         SizedBox(height: 16),

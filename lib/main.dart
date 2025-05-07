@@ -11,7 +11,7 @@ import '../config/globals.dart';
 
 
 void main() {
-    globalAuthToken = '';
+    globalAuthToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NSwiaWF0IjoxNzQ2NjI5NzcyLCJleHAiOjE3NDY2MzMzNzJ9.3oM4DJpHmPLXZRExIKL_9TqSfyjkvNG1UlMXAlwfSK4';
   runApp(MyApp());
 }
 
@@ -32,12 +32,12 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
-        // '/': (context) => HomeScreen(),
+        '/': (context) => HomeScreen(),
         // '/': (context) => SchedulingPage(), // Step 4
         // '/': (context) => ConnectCalendarPage(), // Step 3
         // '/': (context) => AvailabilityScreen(), // Step 2
         // '/step2': (context) => AvailabilityScreen(), // Step 2
-       '/': (context) => AppointmentSetupScreen(), // step1
+      //  '/': (context) => AppointmentSetupScreen(), // step1
         // '/step1': (context) => AppointmentSetupScreen(), // Provide actual token
         // '/': (context) => LoginPage(),
         '/login': (context) => LoginPage(),

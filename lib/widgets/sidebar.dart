@@ -1,3 +1,4 @@
+// lib\widgets\sidebar.dart
 import 'package:flutter/material.dart';
 import 'package:tabourak/colors/app_colors.dart';
 import 'nav_button.dart';

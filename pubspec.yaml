@@ -41,6 +41,8 @@ dependencies:
   timezone: ^0.9.1
   path: ^1.8.2
   http_parser: ^4.0.2
+  syncfusion_flutter_datepicker: ^20.4.48
+
 
 
 
@@ -90,6 +92,7 @@ flutter:
     - images/tabourakNobackground.png
     - images/loginBackground.png
     - images/signupBackground.png
+    - images/calendar_icon.png
     - assets/lottie/
   #   - images/a_dot_ham.jpeg
 

@@ -1,6 +1,6 @@
  // lib/content/availability/widgets/availability_editor.dart
 import 'package:flutter/material.dart';
-import '../../../colors/app_colors.dart';
+import 'package:tabourak/colors/app_colors.dart';
 import 'package:tabourak/models/time_range.dart';
 
 class AvailabilityEditor extends StatefulWidget {
@@ -68,6 +68,7 @@ class _AvailabilityEditorState extends State<AvailabilityEditor> {
                     return CheckboxListTile(
                       title: Text(day),
                       value: selected.contains(day),
+                      activeColor: AppColors.primaryColor,
                       onChanged: (checked) {
                         setState(() {
                           if (checked == true) {
@@ -84,6 +85,9 @@ class _AvailabilityEditorState extends State<AvailabilityEditor> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.primaryColor,
+                  ),
                   child: Text("Cancel"),
                 ),
                 ElevatedButton(
@@ -93,6 +97,7 @@ class _AvailabilityEditorState extends State<AvailabilityEditor> {
                   child: Text("Copy"),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryColor,
+                    foregroundColor: Colors.white,
                   ),
                 ),
               ],

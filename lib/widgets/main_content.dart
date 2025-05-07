@@ -1,7 +1,8 @@
+// lib\widgets\main_content.dart
 import 'package:flutter/material.dart';
 import '../content/meetings_content.dart';
 import '../content/pages/pages_content.dart';
-import '../content/availability/availability_content.dart';
+import '../content/availability&calender/availability_content_tabs.dart';
 import '../content/members_content.dart';
 import '../content/settings_content.dart';
 
