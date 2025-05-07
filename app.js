@@ -23,6 +23,7 @@ app.use('/api/booking-pages', require('./routes/bookingPageRoutes'));
 app.use('/api/upload', require('./routes/uploadRoutes'));
 app.use('/uploads', express.static('public/uploads')); // Serve uploaded files
 app.use('/api/user', require('./routes/userRoutes'));
+app.use('/api/meeting-types', require('./routes/meetingTypeRoutes'));
 
 // Test endpoint
 app.get('/api/health', (req, res) => {

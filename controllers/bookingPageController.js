@@ -1,5 +1,4 @@
 // controllers/bookingPageController.js
-
 const db = require('../config/db');
 const { v4: uuidv4 } = require('uuid');
 
@@ -8,44 +7,79 @@ exports.createBookingPage = async (req, res) => {
     const { title, color_primary, logo_url } = req.body;
     const userId = req.user.id;
     
-    console.log('Received data:', { title, color_primary, logo_url, userId });
+    console.log('Creating booking page with:', { title, color_primary, logo_url });
 
-    // Generate a unique slug
-    const slug = uuidv4().substring(0, 8);
-    
-    // Check if user already has a booking page
-    const [existingPages] = await db.promise().query(
-      'SELECT * FROM booking_pages WHERE user_id = ?',
+    // Get member and organization info
+    const [member] = await db.promise().query(
+      `SELECT m.member_id, m.organization_id 
+       FROM members m
+       WHERE m.user_id = ?`,
       [userId]
     );
+
+    if (!member[0]) {
+      return res.status(404).json({ error: 'Member not found' });
+    }
+
+    const memberId = member[0].member_id;
+    const organizationId = member[0].organization_id;
+
+    // Generate a base slug that will be used for all appointments
+    const baseSlug = uuidv4().substring(0, 8);
     
-    if (existingPages.length > 0) {
+    // Get all appointments for this member (regardless of is_active status)
+    const [appointments] = await db.promise().query(
+      'SELECT appointment_id FROM appointments WHERE member_id = ?',
+      [memberId]
+    );
+
+    if (appointments.length === 0) {
       return res.status(400).json({ 
-        error: 'User already has a booking page',
-        existingPage: existingPages[0]
+        error: 'No appointments found. Please complete step 1 first.' 
       });
     }
-    
-    // Insert new booking page with logo_url
-    const [result] = await db.promise().query(
-      'INSERT INTO booking_pages (user_id, slug, title, color_primary, logo_url) VALUES (?, ?, ?, ?, ?)',
-      [userId, slug, title, color_primary, logo_url || null]
-    );
-    
-    console.log('Insert result:', result);
 
-    // Get the newly created booking page
-    const [newPage] = await db.promise().query(
-      'SELECT * FROM booking_pages WHERE page_id = ?',
-      [result.insertId]
-    );
-    
-    console.log('New page:', newPage[0]);
+    await db.promise().query('START TRANSACTION');
 
-    res.status(201).json({
-      message: 'Booking page created successfully',
-      page: newPage[0]
-    });
+    try {
+      // Update ALL appointments with the same booking page settings
+      const updatePromises = appointments.map(appt => {
+        return db.promise().query(
+          `UPDATE appointments SET 
+            page_title = ?,
+            page_color_primary = ?,
+            page_logo_url = ?,
+            slug = ?,
+            updated_at = CURRENT_TIMESTAMP
+           WHERE appointment_id = ?`,
+          [
+            title,
+            color_primary,
+            logo_url || null,
+            `${baseSlug}-${appt.appointment_id}`, // Unique slug per appointment
+            appt.appointment_id
+          ]
+        );
+      });
+
+      await Promise.all(updatePromises);
+
+      await db.promise().query('COMMIT');
+      
+      // Return success with the first updated appointment details
+      const [updatedAppointment] = await db.promise().query(
+        'SELECT * FROM appointments WHERE appointment_id = ?',
+        [appointments[0].appointment_id]
+      );
+
+      res.status(201).json({
+        message: 'Booking page settings applied to all appointment types',
+        appointment: updatedAppointment[0]
+      });
+    } catch (err) {
+      await db.promise().query('ROLLBACK');
+      throw err;
+    }
   } catch (err) {
     console.error('Error creating booking page:', err);
     res.status(500).json({ 
@@ -54,20 +88,48 @@ exports.createBookingPage = async (req, res) => {
     });
   }
 };
+
 exports.getUserBookingPages = async (req, res) => {
   try {
     const userId = req.user.id;
     
-    const [pages] = await db.promise().query(
-      'SELECT * FROM booking_pages WHERE user_id = ?',
+    // Get member info
+    const [member] = await db.promise().query(
+      'SELECT member_id FROM members WHERE user_id = ?',
       [userId]
     );
+
+    if (!member[0]) {
+      return res.status(404).json({ error: 'Member not found' });
+    }
+
+    const memberId = member[0].member_id;
     
-    res.status(200).json(pages);
+    // Get any appointment with booking page settings (no is_active filter)
+    const [appointments] = await db.promise().query(
+      `SELECT 
+        appointment_id,
+        page_title as title,
+        page_color_primary as color_primary,
+        page_logo_url as logo_url,
+        slug,
+        updated_at
+       FROM appointments 
+       WHERE member_id = ?
+       ORDER BY appointment_id ASC
+       LIMIT 1`,
+      [memberId]
+    );
+    
+    if (appointments.length === 0) {
+      return res.status(404).json({ error: 'No appointments found' });
+    }
+
+    res.status(200).json(appointments[0]);
   } catch (err) {
-    console.error('Error fetching booking pages:', err);
+    console.error('Error fetching booking page:', err);
     res.status(500).json({ 
-      error: 'Failed to fetch booking pages',
+      error: 'Failed to fetch booking page settings',
       details: err.message 
     });
   }
@@ -75,36 +137,72 @@ exports.getUserBookingPages = async (req, res) => {
 
 exports.updateBookingPage = async (req, res) => {
   try {
-    const { id } = req.params;
     const userId = req.user.id;
     const { title, color_primary, logo_url } = req.body;
     
-    // Check if page belongs to user
-    const [existingPage] = await db.promise().query(
-      'SELECT * FROM booking_pages WHERE page_id = ? AND user_id = ?',
-      [id, userId]
+    // Get member info
+    const [member] = await db.promise().query(
+      'SELECT member_id FROM members WHERE user_id = ?',
+      [userId]
     );
-    
-    if (existingPage.length === 0) {
-      return res.status(404).json({ error: 'Booking page not found' });
+
+    if (!member[0]) {
+      return res.status(404).json({ error: 'Member not found' });
     }
-    
-    // Update page
-    await db.promise().query(
-      'UPDATE booking_pages SET title = ?, color_primary = ?, logo_url = ? WHERE page_id = ?',
-      [title, color_primary, logo_url, id]
+
+    const memberId = member[0].member_id;
+
+    // Get ALL appointments for this member (not filtered by is_active)
+    const [appointments] = await db.promise().query(
+      'SELECT appointment_id FROM appointments WHERE member_id = ?',
+      [memberId]
     );
-    
-    // Get the updated booking page
-    const [updatedPage] = await db.promise().query(
-      'SELECT * FROM booking_pages WHERE page_id = ?',
-      [id]
-    );
-    
-    res.status(200).json({ 
-      message: 'Booking page updated successfully',
-      page: updatedPage[0]
-    });
+
+    if (appointments.length === 0) {
+      return res.status(400).json({ 
+        error: 'No appointments found' 
+      });
+    }
+
+    await db.promise().query('START TRANSACTION');
+
+    try {
+      // Update ALL appointments with the new booking page settings
+      const updatePromises = appointments.map(appt => {
+        return db.promise().query(
+          `UPDATE appointments SET 
+            page_title = ?,
+            page_color_primary = ?,
+            page_logo_url = ?,
+            updated_at = CURRENT_TIMESTAMP
+           WHERE appointment_id = ?`,
+          [
+            title,
+            color_primary,
+            logo_url || null,
+            appt.appointment_id
+          ]
+        );
+      });
+
+      await Promise.all(updatePromises);
+
+      await db.promise().query('COMMIT');
+      
+      // Return the first updated appointment
+      const [updatedAppointment] = await db.promise().query(
+        'SELECT * FROM appointments WHERE appointment_id = ?',
+        [appointments[0].appointment_id]
+      );
+
+      res.status(200).json({
+        message: 'Booking page settings updated for all appointment types',
+        appointment: updatedAppointment[0]
+      });
+    } catch (err) {
+      await db.promise().query('ROLLBACK');
+      throw err;
+    }
   } catch (err) {
     console.error('Error updating booking page:', err);
     res.status(500).json({ 
@@ -113,92 +211,4 @@ exports.updateBookingPage = async (req, res) => {
     });
   }
 };
-// const db = require('../config/db');
-// const { v4: uuidv4 } = require('uuid');
 
-// exports.createBookingPage = async (req, res) => {
-//   try {
-//     const { title, color_primary } = req.body;
-//     const userId = req.user.id;
-    
-//     // Generate a unique slug
-//     const slug = uuidv4().substring(0, 8);
-    
-//     // Check if user already has a booking page
-//     const [existingPages] = await db.promise().query(
-//       'SELECT * FROM booking_pages WHERE user_id = ?',
-//       [userId]
-//     );
-    
-//     if (existingPages.length > 0) {
-//       return res.status(400).json({ 
-//         error: 'User already has a booking page',
-//         existingPage: existingPages[0]
-//       });
-//     }
-    
-//     // Insert new booking page
-//     const [result] = await db.promise().query(
-//       'INSERT INTO booking_pages (user_id, slug, title, color_primary) VALUES (?, ?, ?, ?)',
-//       [userId, slug, title, color_primary]
-//     );
-    
-//     res.status(201).json({
-//       message: 'Booking page created successfully',
-//       page: {
-//         id: result.insertId,
-//         slug,
-//         title,
-//         color_primary
-//       }
-//     });
-//   } catch (err) {
-//     console.error('Error creating booking page:', err);
-//     res.status(500).json({ error: 'Failed to create booking page' });
-//   }
-// };
-
-// exports.getUserBookingPages = async (req, res) => {
-//   try {
-//     const userId = req.user.id;
-    
-//     const [pages] = await db.promise().query(
-//       'SELECT * FROM booking_pages WHERE user_id = ?',
-//       [userId]
-//     );
-    
-//     res.status(200).json(pages);
-//   } catch (err) {
-//     console.error('Error fetching booking pages:', err);
-//     res.status(500).json({ error: 'Failed to fetch booking pages' });
-//   }
-// };
-
-// exports.updateBookingPage = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const userId = req.user.id;
-//     const { title, color_primary, logo_url } = req.body;
-    
-//     // Check if page belongs to user
-//     const [existingPage] = await db.promise().query(
-//       'SELECT * FROM booking_pages WHERE page_id = ? AND user_id = ?',
-//       [id, userId]
-//     );
-    
-//     if (existingPage.length === 0) {
-//       return res.status(404).json({ error: 'Booking page not found' });
-//     }
-    
-//     // Update page
-//     await db.promise().query(
-//       'UPDATE booking_pages SET title = ?, color_primary = ?, logo_url = ? WHERE page_id = ?',
-//       [title, color_primary, logo_url, id]
-//     );
-    
-//     res.status(200).json({ message: 'Booking page updated successfully' });
-//   } catch (err) {
-//     console.error('Error updating booking page:', err);
-//     res.status(500).json({ error: 'Failed to update booking page' });
-//   }
-// };

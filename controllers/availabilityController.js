@@ -1,136 +1,58 @@
 // controllers\availabilityController.js
 const db = require('../config/db');
 
-// Save or update user availability
-exports.saveAvailability = async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const { availability, timezone = 'UTC', scheduleId: clientScheduleId } = req.body;
-
-    // Validate input
-    if (!availability || typeof availability !== 'object') {
-      return res.status(400).json({ error: 'Invalid availability data' });
-    }
-
-    await db.promise().query('START TRANSACTION');
-
-    // 1. Check for existing schedule
-    let scheduleId = clientScheduleId;
-    let action = 'created';
-    
-    if (scheduleId) {
-      // Verify the schedule belongs to the user
-      const [existing] = await db.promise().query(
-        'SELECT 1 FROM availability_schedules WHERE schedule_id = ? AND user_id = ?',
-        [scheduleId, userId]
-      );
-      
-      if (existing.length === 0) {
-        await db.promise().query('ROLLBACK');
-        return res.status(403).json({ error: 'Not authorized to update this schedule' });
-      }
-
-      action = 'updated';
-      
-      // Update existing schedule
-      await db.promise().query(
-        'UPDATE availability_schedules SET timezone = ?, updated_at = CURRENT_TIMESTAMP WHERE schedule_id = ?',
-        [timezone, scheduleId]
-      );
-      
-      // Clear existing availability for this schedule
-      await db.promise().query(
-        'DELETE FROM recurring_availability WHERE schedule_id = ?',
-        [scheduleId]
-      );
-    } else {
-      // Create new schedule
-      const [result] = await db.promise().query(
-        'INSERT INTO availability_schedules (user_id, name, timezone, is_default) VALUES (?, ?, ?, ?)',
-        [userId, 'Default Availability', timezone, true]
-      );
-      scheduleId = result.insertId;
-    }
-
-    // 2. Insert new availability slots
-    const dayMap = {
-      "Sunday": "sunday",
-      "Monday": "monday",
-      "Tuesday": "tuesday",
-      "Wednesday": "wednesday",
-      "Thursday": "thursday",
-      "Friday": "friday",
-      "Saturday": "saturday"
-    };
-
-    const insertPromises = [];
-    
-    for (const [day, timeRanges] of Object.entries(availability)) {
-      const dbDay = dayMap[day];
-      if (!dbDay) continue;
-
-      for (const range of timeRanges) {
-        const startTime = `${range.start.hour.toString().padStart(2, '0')}:${range.start.minute.toString().padStart(2, '0')}:00`;
-        const endTime = `${range.end.hour.toString().padStart(2, '0')}:${range.end.minute.toString().padStart(2, '0')}:00`;
-
-        insertPromises.push(
-          db.promise().query(
-            'INSERT INTO recurring_availability (schedule_id, day_of_week, start_time, end_time, is_available) VALUES (?, ?, ?, ?, ?)',
-            [scheduleId, dbDay, startTime, endTime, true]
-          )
-        );
-      }
-    }
-
-    await Promise.all(insertPromises);
-    await db.promise().query('COMMIT');
-
-    res.status(200).json({
-      success: true,
-      message: `Availability ${action} successfully`,
-      scheduleId,
-      action
-    });
-
-  } catch (err) {
-    await db.promise().query('ROLLBACK');
-    console.error('Error saving availability:', err);
-    res.status(500).json({ 
-      error: 'Failed to save availability',
-      details: err.message 
-    });
-  }
-};
-
-// Get user availability
+// Get user availability (linked to appointments created in step1)
 exports.getAvailability = async (req, res) => {
   try {
+    console.log('getAvailability called'); // Debug log
     const userId = req.user.id;
+    console.log(`User ID: ${userId}`); // Debug log
 
-    // Get default schedule with availability
+    // 1. Get member ID
+    console.log('Fetching member ID from database...'); // Debug log
+    const [member] = await db.promise().query(
+      'SELECT member_id FROM members WHERE user_id = ?',
+      [userId]
+    );
+    
+    console.log(`Member query result: ${JSON.stringify(member)}`); // Debug log
+    
+    if (!member[0]) {
+      console.log('Member not found for user'); // Debug log
+      return res.status(404).json({ error: 'Member not found' });
+    }
+    
+    const memberId = member[0].member_id;
+    console.log(`Found member ID: ${memberId}`); // Debug log
+
+    // 2. Get the schedule linked to the member's appointments
+    console.log('Fetching schedule linked to member appointments...'); // Debug log
     const [schedules] = await db.promise().query(
       `SELECT 
-        s.schedule_id, 
+        a.schedule_id,
         s.timezone,
         s.created_at,
         s.updated_at
-      FROM availability_schedules s
-      WHERE s.user_id = ? AND s.is_default = TRUE
-      ORDER BY s.schedule_id DESC
+      FROM appointments a
+      JOIN availability_schedules s ON a.schedule_id = s.schedule_id
+      WHERE a.member_id = ?
+      GROUP BY a.schedule_id
       LIMIT 1`,
-      [userId]
+      [memberId]
     );
 
+    console.log(`Schedule query result: ${JSON.stringify(schedules)}`); // Debug log
+
     if (schedules.length === 0) {
-      return res.status(200).json({ 
-        availability: {},
-        exists: false
-      });
+      console.log('No availability schedule found for member'); // Debug log
+      return res.status(404).json({ error: 'No availability schedule found' });
     }
 
     const schedule = schedules[0];
+    console.log(`Found schedule ID: ${schedule.schedule_id}`); // Debug log
     
-    // Get all time slots for this schedule
+    // 3. Get all time slots for this schedule
+    console.log('Fetching time slots for schedule...'); // Debug log
     const [slots] = await db.promise().query(
       `SELECT 
         day_of_week, 
@@ -141,6 +63,8 @@ exports.getAvailability = async (req, res) => {
       ORDER BY day_of_week, start_time`,
       [schedule.schedule_id]
     );
+
+    console.log(`Time slots query result: ${JSON.stringify(slots)}`); // Debug log
 
     const availability = {};
     const dayMap = {
@@ -155,7 +79,10 @@ exports.getAvailability = async (req, res) => {
 
     slots.forEach(slot => {
       const dayName = dayMap[slot.day_of_week];
-      if (!dayName) return;
+      if (!dayName) {
+        console.log(`Unknown day_of_week: ${slot.day_of_week}`); // Debug log
+        return;
+      }
       
       if (!availability[dayName]) {
         availability[dayName] = [];
@@ -170,6 +97,8 @@ exports.getAvailability = async (req, res) => {
       });
     });
 
+    console.log('Processed availability:', JSON.stringify(availability)); // Debug log
+
     res.status(200).json({
       availability,
       scheduleId: schedule.schedule_id,
@@ -180,7 +109,122 @@ exports.getAvailability = async (req, res) => {
     });
 
   } catch (err) {
-    console.error('Error getting availability:', err);
+    console.error('Error getting availability:', {
+      error: err,
+      userId: userId,
+      memberId: memberId,
+      scheduleId: schedule?.schedule_id
+    });
     res.status(500).json({ error: 'Failed to get availability' });
+  }
+};
+
+// Update existing availability schedule
+exports.updateAvailability = async (req, res) => {
+  try {
+    console.log('updateAvailability called'); // Debug log
+    const userId = req.user.id;
+    const { availability, scheduleId } = req.body;
+
+    console.log(`Request data - User ID: ${userId}, Schedule ID: ${scheduleId}, Availability: ${JSON.stringify(availability)}`); // Debug log
+
+    if (!scheduleId) {
+      console.log('Schedule ID missing in request'); // Debug log
+      return res.status(400).json({ error: 'Schedule ID is required' });
+    }
+
+    // 1. Verify the schedule belongs to the user's member record
+    console.log('Verifying schedule ownership...'); // Debug log
+    const [member] = await db.promise().query(
+      `SELECT m.member_id 
+       FROM members m
+       JOIN availability_schedules s ON m.member_id = s.member_id
+       WHERE m.user_id = ? AND s.schedule_id = ?`,
+      [userId, scheduleId]
+    );
+    
+    console.log(`Ownership verification result: ${JSON.stringify(member)}`); // Debug log
+    
+    if (!member[0]) {
+      console.log('User not authorized to update this schedule'); // Debug log
+      return res.status(403).json({ error: 'Not authorized to update this schedule' });
+    }
+
+    console.log('Starting database transaction...'); // Debug log
+    await db.promise().query('START TRANSACTION');
+
+    // 2. Clear existing availability for this schedule
+    console.log('Clearing existing availability slots...'); // Debug log
+    await db.promise().query(
+      'DELETE FROM recurring_availability WHERE schedule_id = ?',
+      [scheduleId]
+    );
+
+    // 3. Insert new availability slots
+    console.log('Preparing to insert new availability slots...'); // Debug log
+    const dayMap = {
+      "Sunday": "sunday",
+      "Monday": "monday",
+      "Tuesday": "tuesday",
+      "Wednesday": "wednesday",
+      "Thursday": "thursday",
+      "Friday": "friday",
+      "Saturday": "saturday"
+    };
+
+    const insertPromises = [];
+    
+    for (const [day, timeRanges] of Object.entries(availability)) {
+      const dbDay = dayMap[day];
+      if (!dbDay) {
+        console.log(`Skipping unknown day: ${day}`); // Debug log
+        continue;
+      }
+
+      console.log(`Processing day: ${day} (${dbDay})`); // Debug log
+      
+      for (const range of timeRanges) {
+        const startTime = `${range.start.hour.toString().padStart(2, '0')}:${range.start.minute.toString().padStart(2, '0')}:00`;
+        const endTime = `${range.end.hour.toString().padStart(2, '0')}:${range.end.minute.toString().padStart(2, '0')}:00`;
+
+        console.log(`Adding time range: ${startTime} to ${endTime} for ${dbDay}`); // Debug log
+        
+        insertPromises.push(
+          db.promise().query(
+            'INSERT INTO recurring_availability (schedule_id, day_of_week, start_time, end_time, is_available) VALUES (?, ?, ?, ?, ?)',
+            [scheduleId, dbDay, startTime, endTime, true]
+          )
+        );
+      }
+    }
+
+    console.log(`Executing ${insertPromises.length} insert operations...`); // Debug log
+    await Promise.all(insertPromises);
+
+    // 4. Update schedule timestamp
+    console.log('Updating schedule timestamp...'); // Debug log
+    await db.promise().query(
+      'UPDATE availability_schedules SET updated_at = CURRENT_TIMESTAMP WHERE schedule_id = ?',
+      [scheduleId]
+    );
+
+    console.log('Committing transaction...'); // Debug log
+    await db.promise().query('COMMIT');
+
+    console.log('Availability update successful'); // Debug log
+    res.status(200).json({
+      success: true,
+      message: 'Availability updated successfully',
+      scheduleId
+    });
+
+  } catch (err) {
+    console.error('Error updating availability:', err);
+    console.log('Attempting to rollback transaction...'); // Debug log
+    await db.promise().query('ROLLBACK');
+    res.status(500).json({ 
+      error: 'Failed to update availability',
+      details: err.message 
+    });
   }
 };

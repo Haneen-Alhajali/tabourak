@@ -6,6 +6,6 @@ const bookingPageController = require('../controllers/bookingPageController');
 
 router.post('/', authMiddleware, bookingPageController.createBookingPage);
 router.get('/', authMiddleware, bookingPageController.getUserBookingPages);
-router.put('/:id', authMiddleware, bookingPageController.updateBookingPage);
+router.put('/', authMiddleware, bookingPageController.updateBookingPage);
 
 module.exports = router;
