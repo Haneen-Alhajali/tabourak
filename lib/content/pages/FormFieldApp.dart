@@ -28,7 +28,10 @@ class _CreateFormFieldScreenState extends State<CreateFormFieldScreen> {
     'Checkbox Field',
     'Place Field',
     'Date Field',
+    'Time Field',
+    'Upload File',
   ];
+
 
   final labelController = TextEditingController();
   final helpTextController = TextEditingController();
@@ -57,6 +60,10 @@ class _CreateFormFieldScreenState extends State<CreateFormFieldScreen> {
         return Icons.place;
       case 'Date Field':
         return Icons.date_range;
+      case 'Time Field':
+        return Icons.access_time;
+      case 'Upload File':
+        return Icons.upload_file;
       default:
         return Icons.text_fields;
     }
@@ -186,17 +193,28 @@ class _CreateFormFieldScreenState extends State<CreateFormFieldScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryColor,
                     ),
+
                     onPressed: () {
+                      List<String> options =
+                          choiceControllers
+                              .map((controller) => controller.text.trim())
+                              .where((text) => text.isNotEmpty)
+                              .toList();
+
                       final field = {
                         'label': labelController.text,
                         'type': selectedFieldType,
                         'isRequired': isRequired,
                         'icon': selectedIconName,
+                        'help_text': helpTextController.text.trim(),
+                        if (selectedFieldType == 'Choice Field' ||
+                            selectedFieldType == 'Multiple Choice Field' ||
+                            selectedFieldType == 'Checkbox Field')
+                          'options': options,
                       };
 
                       Navigator.pop(context, field);
                     },
-
                     child: Text(
                       "Create Form Field",
                       style: TextStyle(color: AppColors.backgroundColor),
