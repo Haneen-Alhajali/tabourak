@@ -136,6 +136,7 @@ class _MeetingListScreenState extends State<MeetingListScreen> {
           context,
         ).showSnackBar(SnackBar(content: Text('error when open link')));
       }
+      
     } else {
       ScaffoldMessenger.of(
         context,
