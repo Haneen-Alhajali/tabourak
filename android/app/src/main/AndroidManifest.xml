@@ -1,17 +1,31 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools">
+
 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 <uses-permission android:name="android.permission.CAMERA"/>
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
   
 <uses-permission android:name="android.permission.INTERNET" />
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+<uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+    tools:ignore="ScopedStorage"/>
+
+
 
     <application
         android:enableOnBackInvokedCallback="true"
         android:label="tabourk"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:requestLegacyExternalStorage="true"
+>
     
+
+    <meta-data
+  android:name="com.google.android.geo.API_KEY"
+  android:value="AIzaSyDnoBa1BBySUwUxeOoM_liIzq8rRyNP2hY"/>
+
+
     <activity
     android:name=".MainActivity"
     android:exported="true"
@@ -34,12 +48,16 @@
     </intent-filter>
 
 
-    <intent-filter>
+        <intent-filter>
         <action android:name="android.intent.action.VIEW" />
         <category android:name="android.intent.category.DEFAULT" />
         <category android:name="android.intent.category.BROWSABLE" />
+        <!-- Add data element with your custom scheme -->
+        <data 
+            android:scheme="tabourak"
+            android:host="zoom-auth-success" />
+        </intent-filter>
     
-    </intent-filter>
     </activity>
 
 
@@ -49,6 +67,16 @@
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
+<queries>
+    <intent>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="https" />
+    </intent>
+</queries>
+
+
+
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
          https://developer.android.com/reference/android/content/Intent#ACTION_PROCESS_TEXT.

@@ -4,6 +4,10 @@ import 'package:file_selector/file_selector.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:tabourak/config/config.dart';
+import 'package:intl/intl.dart';
+import 'package:tabourak/web%20pages/BookingConfirmationApp.dart';
+//import 'package:flutter_native_timezone/flutter_native_timezone.dart';
+
 /*
 void main() => runApp(FormFieldApp());
 
@@ -19,8 +23,28 @@ class FormFieldApp extends StatelessWidget {
 
 class IntakeFormScreen extends StatefulWidget {
   final int appointmentId;
+  final int orgnization_id;
+  final int member_id;
 
-  const IntakeFormScreen({super.key, required this.appointmentId});
+  final String appointmentType;
+  final DateTime startTime;
+  final DateTime endTime;
+  final String appointmentName;
+  final int duration;
+  final String attendeeType;
+
+  const IntakeFormScreen({
+    super.key,
+    required this.appointmentId,
+    required this.appointmentType,
+    required this.startTime,
+    required this.endTime,
+    required this.orgnization_id,
+    required this.member_id,
+    required this.appointmentName,
+    required this.duration,
+    required this.attendeeType,
+  });
 
   @override
   State<IntakeFormScreen> createState() => _IntakeFormScreenState();
@@ -30,10 +54,87 @@ class _IntakeFormScreenState extends State<IntakeFormScreen> {
   Map<int, TextEditingController> textControllers = {};
   Map<int, dynamic> userAnswers = {};
   Map<int, String> fileFieldAnswers = {};
+  int? meetingId;
+  String emailControllertoSend = "";
 
-  //////////////////////////////////////////////
+  final TextEditingController firstNameController = TextEditingController();
+  final TextEditingController lastNameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  //////////////////////////////////////////////////////////////////////////
+
+  ////////////////////////////////////////////////////////////////////////
+
+  Future<void> createMeetingForBooking(int user_id) async {
+    //  final endTimeutc = widget.endTime.toUtc();
+    //  final startTimeutc = widget.startTime.toUtc();
+
+    print(
+      "📦📦📦📦📦📦widget.endTime 📦📦📦📦📦📦" + widget.endTime.toString(),
+    );
+    print(
+      "📦📦📦📦📦📦widget.startTime 📦📦📦📦📦📦" + widget.startTime.toString(),
+    );
+
+    /*
+    final formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+    final endtimetoBackend = formatter.format(endTimeutc);
+    final starttimetoBackend = formatter.format(startTimeutc);*/
+
+    final url = Uri.parse(
+      '${AppConfig.baseUrl}/api/create-meeting-for-booking',
+    );
+
+    final formattedStartTime = DateFormat(
+      'yyyy-MM-dd HH:mm:ss',
+    ).format(widget.startTime.toUtc());
+    final formattedEndTime = DateFormat(
+      'yyyy-MM-dd HH:mm:ss',
+    ).format(widget.endTime.toUtc());
+
+    print("✅✅✅✅formattedStartTime ✅✅✅✅" + formattedStartTime);
+
+    print("✅✅✅✅formattedEndTime ✅✅✅✅" + formattedEndTime);
+
+    final Map<String, dynamic> meetingData = {
+      "appointment_id": widget.appointmentId,
+      "staff_id": widget.member_id,
+      "user_info_id": user_id,
+      "organization_id": widget.orgnization_id,
+      "start_time": formattedStartTime,
+      "end_time": formattedEndTime,
+      "timezone": "Asia/Riyadh",
+    };
+
+    print("✅✅✅✅✅✅✅✅✅✅✅✅");
+    print(meetingData);
+    print("✅✅✅✅✅✅✅✅✅✅✅✅");
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(meetingData),
+      );
+
+      if (response.statusCode == 201) {
+        final decoded = jsonDecode(response.body);
+        setState(() {
+          meetingId = decoded['meeting_id'];
+        });
+        print('✅ الاجتماع تم حفظه بنجاح، Meeting ID: $meetingId');
+      } else {
+        print('❌ فشل في حفظ الاجتماع: ${response.body}');
+      }
+    } catch (e) {
+      print('⚠️ حصل خطأ: $e');
+    }
+  }
+
+  ////////////////////////////////////////////////////////////////////////
   List<dynamic> fields = [];
   bool isLoading = true;
+
+  late String timezone = "UTC";
 
   @override
   void initState() {
@@ -70,10 +171,14 @@ class _IntakeFormScreenState extends State<IntakeFormScreen> {
   }
   ///////////////////////////////////////////////////////////////////
 
-  Future<void> uploadFileForField(int fieldId, String pathFile) async {
-    int meetingId = 1;
-    int userId = 1;
-
+  Future<void> uploadFileForField(
+    int fieldId,
+    int userId,
+    String pathFile,
+  ) async {
+    //  int meetingId = 1;
+    //  int userId = 1;
+    print("♻️♻️♻️♻️userId" + userId.toString());
     final uri = Uri.parse('${AppConfig.baseUrl}/api/upload-file-response');
 
     final request =
@@ -84,7 +189,6 @@ class _IntakeFormScreenState extends State<IntakeFormScreen> {
           ..files.add(await http.MultipartFile.fromPath('file', pathFile));
 
     final response = await request.send();
-
     if (response.statusCode == 200) {
       final respStr = await response.stream.bytesToString();
       final jsonResp = jsonDecode(respStr);
@@ -102,7 +206,6 @@ class _IntakeFormScreenState extends State<IntakeFormScreen> {
 
   //////////////////////////////////////////////////////////////////
   Future<void> submitSingleAnswer({
-    required int meetingId,
     required int userId,
     required int fieldId,
     required String responseText,
@@ -126,6 +229,28 @@ class _IntakeFormScreenState extends State<IntakeFormScreen> {
       print('❌ فشل في إرسال الحقل $fieldId: ${response.body}');
     }
   }
+  /////////////////////////////////////////////////////////////////////////////////////////////
+
+  Future<int?> submitUserInfo() async {
+    final response = await http.post(
+      Uri.parse('${AppConfig.baseUrl}/api/intake-form-user'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'first_name': firstNameController.text.trim(),
+        'last_name': lastNameController.text.trim(),
+        'email': emailController.text.trim(),
+      }),
+    );
+
+    emailControllertoSend = emailController.text.toString();
+    if (response.statusCode == 201) {
+      final data = jsonDecode(response.body);
+      return data['user_info_id'];
+    } else {
+      print('Failed to create user: ${response.body}');
+      return null;
+    }
+  }
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   String selectedRadio = 'Choice 1';
@@ -145,11 +270,23 @@ class _IntakeFormScreenState extends State<IntakeFormScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              buildTextField(1, "First Name", "Your given name"),
+              buildFixedTextField(
+                "First Name",
+                "Your given name",
+                controller: firstNameController,
+              ),
               buildSeparator(),
-              buildTextField(2, "Last Name", "Your family name"),
+              buildFixedTextField(
+                "Last Name",
+                "Your family name",
+                controller: lastNameController,
+              ),
               buildSeparator(),
-              buildTextField(3, "Email", "We'll never share your email"),
+              buildFixedTextField(
+                "Email",
+                "We'll never share your email",
+                controller: emailController,
+              ),
               buildSeparator(),
 
               if (isLoading) CircularProgressIndicator(),
@@ -158,12 +295,18 @@ class _IntakeFormScreenState extends State<IntakeFormScreen> {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () async {
-                  print(
-                    "📦📦📦📦 userAnswers 📦📦📦📦 ${userAnswers.toString()}",
-                  );
+                  final userId = await submitUserInfo();
+                  //  print("💡💡💡💡💡" + userId.toString());
 
-                  int meetingId = 1;
-                  int userId = 2;
+                  if (userId == null) {
+                    print("❌ Failed to create user. Aborting form submission.");
+                    return;
+                  }
+
+                  await createMeetingForBooking(userId);
+
+                  //print("📦📦📦📦 userId 📦📦📦📦 ${userId.toString()}");
+                  /*  print(  "📦📦📦📦 userAnswers 📦📦📦📦 ${userAnswers.toString()}",  );*/
 
                   for (var entry in userAnswers.entries) {
                     final fieldId = entry.key;
@@ -180,7 +323,6 @@ class _IntakeFormScreenState extends State<IntakeFormScreen> {
                     }
 
                     await submitSingleAnswer(
-                      meetingId: meetingId,
                       userId: userId,
                       fieldId: fieldId,
                       responseText: stringValue,
@@ -189,27 +331,33 @@ class _IntakeFormScreenState extends State<IntakeFormScreen> {
 
                   for (var entry in fileFieldAnswers.entries) {
                     final fieldId = entry.key;
-                    print(
-                      "♻️♻️♻️♻️♻️♻️♻️♻️entry.key♻️♻️♻️♻️♻️♻️♻️" +
-                          entry.key.toString(),
-                    );
+                    /*  print(  "♻️♻️♻️♻️♻️♻️♻️♻️entry.key♻️♻️♻️♻️♻️♻️♻️" +entry.key.toString(),  );
+                    print(  "📦📦📦📦📦📦📦📦entry.value📦📦📦📦📦📦📦📦" +entry.value.toString(),  );*/
 
-                    print(
-                      "📦📦📦📦📦📦📦📦entry.value📦📦📦📦📦📦📦📦" +
-                          entry.value.toString(),
-                    );
-                    //  final fileUrl = entry.value;
-                    await uploadFileForField(fieldId, entry.value);
-
-                    /*  await submitSingleAnswer(
-                      meetingId: meetingId,
-                      userId: userId,
-                      fieldId: fieldId,
-                      responseText: fileUrl, // هنا نرسل رابط الملف
-                    );*/
+                    await uploadFileForField(fieldId, userId, entry.value);
                   }
 
                   print("✅✅✅ تم إرسال كل الإجابات");
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) => BookingConfirmationScreen(
+                            appointmentId: widget.appointmentId,
+                            appointmentType: widget.appointmentType,
+                            startTime: widget.startTime,
+                            endTime: widget.endTime,
+                            appointmentName: widget.appointmentName,
+                            emailController: emailControllertoSend,
+                            member_id: widget.member_id,
+                            userId: userId,
+                            duration: widget.duration,
+                            attendeeType: widget.attendeeType,
+                            meetingId: meetingId,
+                          ),
+                    ),
+                  );
                 },
                 child: Text("Submit"),
                 style: ElevatedButton.styleFrom(
@@ -248,6 +396,44 @@ class _IntakeFormScreenState extends State<IntakeFormScreen> {
           Text(label, style: TextStyle(fontWeight: FontWeight.w600)),
           TextFormField(
             controller: controller,
+            cursorColor: AppColors.textColorSecond,
+            maxLines: isMultiline ? 3 : 1,
+            decoration: InputDecoration(
+              prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
+              border: OutlineInputBorder(),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: AppColors.textColor),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: AppColors.primaryColor, width: 2),
+              ),
+            ),
+          ),
+          SizedBox(height: 4),
+          Text(
+            helpText,
+            style: TextStyle(color: Colors.grey[600], fontSize: 12),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildFixedTextField(
+    String label,
+    String helpText, {
+    bool isMultiline = false,
+    IconData? prefixIcon,
+    required TextEditingController controller, // 🟢 أضفنا هذا
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: TextStyle(fontWeight: FontWeight.w600)),
+          TextFormField(
+            controller: controller, // 🟢 هنا
             cursorColor: AppColors.textColorSecond,
             maxLines: isMultiline ? 3 : 1,
             decoration: InputDecoration(
@@ -333,7 +519,7 @@ class _IntakeFormScreenState extends State<IntakeFormScreen> {
 
                 userAnswers[fieldId] = selectedValues;
 
-                print("✅ تم تحديث قيم checkbox لحقل $fieldId: $selectedValues");
+                //  print("✅ تم تحديث قيم checkbox لحقل $fieldId: $selectedValues");
               });
             },
             title: Column(

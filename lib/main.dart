@@ -1,11 +1,20 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:tabourak/web%20pages/MeetingBooking.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/admin/admin_dashboard.dart';
 import 'screens/home_screen.dart';
 import '../colors/app_colors.dart'; 
 
+
 void main() {
+ if (kIsWeb) {
+    runApp(MeetingApp()); 
+  }
+  else{
   runApp(MyApp());
+
+  }
 }
 
 class MyApp extends StatelessWidget {

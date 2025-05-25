@@ -10,11 +10,21 @@ class ScheduleScreen extends StatefulWidget {
   final int scheduleId;
   final int duration;
   final int appointmentId;
+  final String appointmentType;
+  final int member_id;
+  final int orgnization_id;
+  final String appointmentName;
+  final String attendeeType;
 
   ScheduleScreen({
     required this.scheduleId,
     required this.duration,
     required this.appointmentId,
+    required this.appointmentType,
+    required this.member_id,
+    required this.orgnization_id,
+    required this.appointmentName,
+    required this.attendeeType,
   });
 
   @override
@@ -58,6 +68,78 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     );
   }
 
+  /*
+
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: AppColors.backgroundColor,
+    appBar: AppBar(
+      title: Text('Choose a time'),
+      backgroundColor: AppColors.backgroundColor,
+    ),
+    body: FutureBuilder<List<AvailableDay>>(
+      future: futureAvailableDays,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('حدث خطأ أثناء تحميل المواعيد'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: Text('لا توجد مواعيد متاحة'));
+        } else {
+          return _buildDaysList(snapshot.data!);
+        }
+      },
+    ),
+  );
+}
+
+Widget _buildDaysList(List<AvailableDay> availableDays) {
+  return ListView.builder(
+    itemCount: availableDays.length,
+    itemBuilder: (context, index) {
+      final day = availableDays[index];
+      if (day.slots.isEmpty) {
+        return SizedBox.shrink();
+      }
+      final dayOfWeek = DateFormat('EEEE').format(day.date);
+      final dayMonth = DateFormat('MMMM d').format(day.date);
+
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Card(
+          color: AppColors.backgroundColor,
+          margin: EdgeInsets.symmetric(horizontal: 12),
+          elevation: 3,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "$dayOfWeek, $dayMonth",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textColor,
+                  ),
+                ),
+                SizedBox(height: 10),
+                _buildTimeRows(context, day.slots), // Updated to pass context
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
+*/
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,52 +165,228 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     );
   }
 
+  Widget _buildDaysList(List<AvailableDay> availableDays) {
+    return ListView.builder(
+      itemCount: availableDays.length,
+      itemBuilder: (context, index) {
+        final day = availableDays[index];
+        if (day.slots.isEmpty) {
+          return SizedBox.shrink();
+        }
+        final dayOfWeek = DateFormat('EEEE').format(day.date);
+        final dayMonth = DateFormat('MMMM d').format(day.date);
 
-
-
-
-
-
-
-
-Widget _buildDaysList(List<AvailableDay> availableDays) {
-  return ListView.builder(
-    itemCount: availableDays.length,
-    itemBuilder: (context, index) {
-      final day = availableDays[index];
-         if (day.slots.isEmpty) {
-        return SizedBox.shrink();
-      }
-      final dayOfWeek = DateFormat('EEEE').format(day.date);
-      final dayMonth = DateFormat('MMMM d').format(day.date);
-
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: Card(
-          color: AppColors.backgroundColor, 
-          margin: EdgeInsets.symmetric(horizontal: 12),
-          elevation: 3,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "$dayOfWeek, $dayMonth",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textColor, // لون النص غامق
-                  ),
-                ),
-                SizedBox(height: 10),
-                
-                ..._buildTimeRows(context, day.slots),
-              ],
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Card(
+            color: AppColors.backgroundColor,
+            margin: EdgeInsets.symmetric(horizontal: 12),
+            elevation: 3,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "$dayOfWeek, $dayMonth",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textColor, // لون النص غامق
+                    ),
+                  ),
+                  SizedBox(height: 10),
+
+                  ..._buildTimeRows(context, day.slots),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  List<Widget> _buildTimeRows(BuildContext context, List<Slot> slots) {
+    List<Widget> rows = [];
+    for (int i = 0; i < slots.length; i += 3) {
+      final chunk = slots.sublist(
+        i,
+        (i + 3 > slots.length) ? slots.length : i + 3,
+      );
+      rows.add(
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children:
+                chunk.map((slot) {
+                  /*  print( "🔴🔴🔴🔴🔴🔴🔴🔴 slot.startTime 🔴🔴🔴🔴🔴🔴🔴🔴" + slot.startTime.toString() );
+
+                final startTimeUtc = slot.startTime.toUtc(); 
+                final startTimeLocal = startTimeUtc.toLocal();
+                
+                print( "💡💡💡💡💡💡💡💡 startTimeUtc 💡💡💡💡💡💡💡💡" + startTimeUtc.toString() );
+
+                // Convert to local device time
+                print( "💡💡💡💡💡💡💡💡 startTimeLocal 💡💡💡💡💡💡💡💡" + startTimeLocal.toString() );
+
+                final startTimeLoca2l = startTimeUtc.toLocal().toLocal();
+                print( "♻️♻️♻️♻️♻️♻️♻️♻️ startTimeLocal ♻️♻️♻️♻️♻️♻️♻️♻️" + startTimeLoca2l.toString() );
+*/
+
+                  final rawString =
+                      slot.startTime
+                          .toString(); // الناتج مثل "2025-05-21 10:00:00.000"
+                  final utcString =
+                      rawString + 'Z'; // إضافة Z لتمثيل الوقت كـ UTC
+                  final utcDateTime = DateTime.parse(
+                    utcString,
+                  ); // الآن يتم تفسيره كـ UTC
+                  final localTime =
+                      utcDateTime.toLocal(); // تحويله للتوقيت المحلي
+
+                  //    print("🕒🕒localTime : $localTime");
+
+                  final startTime = DateFormat.jm().format(localTime);
+
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                    child: SizedBox(
+                      width: 100,
+                      height: 40,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primaryColor,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: EdgeInsets.zero,
+                        ),
+                        onPressed: () async {
+                          // تحويل وقت البداية
+                          final rawStart =
+                              slot.startTime
+                                  .toString(); // مثال: "2025-05-21 10:00:00.000"
+                          final utcStartString = rawStart + 'Z';
+                          final utcStartDateTime = DateTime.parse(
+                            utcStartString,
+                          );
+                          final localStartTime = utcStartDateTime.toLocal();
+
+                          // تحويل وقت النهاية
+                          final rawEnd =
+                              slot.endTime
+                                  .toString(); // مثال: "2025-05-21 10:30:00.000"
+                          final utcEndString = rawEnd + 'Z';
+                          final utcEndDateTime = DateTime.parse(utcEndString);
+                          final localEndTime = utcEndDateTime.toLocal();
+
+                          print("🕒 local start: $localStartTime");
+                          print("🕒 local end: $localEndTime");
+
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (_) => IntakeFormScreen(
+                                    appointmentId: widget.appointmentId,
+                                    appointmentType: widget.appointmentType,
+                                    startTime: localStartTime, // DateTime
+                                    endTime: localEndTime, // DateTime
+                                    orgnization_id: widget.orgnization_id,
+                                    member_id: widget.member_id,
+                                    appointmentName: widget.appointmentName,
+                                    duration: widget.duration,
+                                    attendeeType: widget.attendeeType,
+                                  ),
+                            ),
+                          );
+
+                          setState(() {
+                            futureAvailableDays = fetchAvailableDays(
+                              scheduleId: widget.scheduleId,
+                              appointmentId: widget.appointmentId,
+                              duration: widget.duration,
+                            );
+                          });
+                        },
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            startTime,
+                            style: TextStyle(fontSize: 16),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+          ),
+        ),
+      );
+    }
+    return rows;
+  }
+
+  /*
+
+//depp zeeck code
+Widget _buildTimeRows(BuildContext context, List<Slot> slots) {
+  return GridView.builder(
+    shrinkWrap: true,
+    physics: NeverScrollableScrollPhysics(),
+    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 3,
+      childAspectRatio: 2.5,
+      crossAxisSpacing: 8,
+      mainAxisSpacing: 8,
+    ),
+    itemCount: slots.length,
+    itemBuilder: (context, index) {
+      final slot = slots[index];
+      
+      // Parse UTC time from the database
+      final startTimeUtc = DateTime.parse(slot.startTime.toString());
+      final endTimeUtc = DateTime.parse(slot.endTime.toString());
+      print( "💡💡💡💡💡💡💡💡 startTimeUtc 💡💡💡💡💡💡💡💡" + startTimeUtc.toString() );
+
+
+
+      // Convert to local device time
+      final startTimeLocal = startTimeUtc.toLocal();
+      final endTimeLocal = endTimeUtc.toLocal();
+
+      print( "💡💡💡💡💡💡💡💡 startTimeLocal 💡💡💡💡💡💡💡💡" + startTimeLocal.toString() );
+
+
+      // Format in 12-hour or 24-hour format (based on device settings)
+      final timeFormat = MediaQuery.of(context).alwaysUse24HourFormat 
+          ? DateFormat.Hm() 
+          : DateFormat.jm();
+
+      final startFormatted = timeFormat.format(startTimeLocal);
+      final endFormatted = timeFormat.format(endTimeLocal);
+
+      return ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primaryColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+        onPressed: () {
+          // Handle time slot selection
+        },
+        child: Text(
+          '$startFormatted',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 16,
           ),
         ),
       );
@@ -136,64 +394,10 @@ Widget _buildDaysList(List<AvailableDay> availableDays) {
   );
 }
 
-List<Widget> _buildTimeRows(BuildContext context, List<Slot> slots) {
-  List<Widget> rows = [];
-  for (int i = 0; i < slots.length; i += 3) {
-    final chunk = slots.sublist(
-      i,
-      (i + 3 > slots.length) ? slots.length : i + 3,
-    );
 
-    rows.add(
-      Padding(
-        padding: const EdgeInsets.only(bottom: 8.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: chunk.map((slot) {
-            final startTime = DateFormat.jm().format(slot.startTime); // عرض وقت البداية فقط
+*/
 
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6),
-              child: SizedBox(
-                width: 100,
-                height: 40,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryColor, // خلفية الموعد - درجة مختلفة من الأحمر
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: EdgeInsets.zero,
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => IntakeFormScreen(appointmentId:widget.appointmentId),
-                      ),
-                    );
-                  },
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(startTime, style: TextStyle(fontSize: 16)),
-                  ),
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-      ),
-    );
-  }
-  return rows;
-}
-
-
-
-
-
-/*
+  /*
   Widget _buildDaysList(List<AvailableDay> availableDays) {
     return ListView.builder(
       itemCount: availableDays.length,
