@@ -6,7 +6,6 @@ const jwt = require("jsonwebtoken");
 const { getCalendarDetails } =require('../services/calendarService');
 
 
-
 exports.connectCalendar = async (req, res) => {
   try {
     console.log(req.body);

@@ -33,7 +33,7 @@ router.post('/upload-file-response', upload.single('file'), async (req, res) => 
     const fileUrl = `https://docs.google.com/gview?url=${result.secure_url}`;
 
     const sql = `
-      INSERT INTO custom_field_responses (field_id, meeting_id, user_id, response_text)
+      INSERT INTO custom_field_responses (field_id, meeting_id, user_info_id, response_text)
       VALUES (?, ?, ?, ?)
     `;
 

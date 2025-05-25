@@ -3,6 +3,9 @@ const axios = require('axios');
 
 const express = require('express');
 const app = express();
+const cors = require('cors');
+app.use(cors());
+
 const authRoutes = require('./routes/authRoutes');
 const otpRoutes = require('./routes/otpRoutes');
 const calendarRoutes = require('./routes/calenderRoutes');
@@ -15,6 +18,13 @@ const customFileResponsesRoutes = require('./routes/customFileResponsesRoutes');
 
 const bookingAvailabilityRoutes = require('./routes/bookingAvailabilityRoutes');
 const availabilityRoutes = require('./routes/getAvailableSlotsWithoutBookedRoutes'); 
+
+
+const memberRoutes = require('./routes/memberRoutes');
+
+const generatedMeetingsRoutes = require('./routes/generatedMeetingsRoutes');
+const bookingsRoutes = require('./routes/bookingEmailRoutes');
+const meetingRoutes = require('./routes/meetingShowRoutes');
 
 
 
@@ -39,12 +49,12 @@ app.use('/api', customFileResponsesRoutes);
 app.use('/api', bookingAvailabilityRoutes);
 app.use('/api', availabilityRoutes); // 
 
+app.use('/api', memberRoutes); 
 
 
-
-
-
-
+app.use('/api', generatedMeetingsRoutes); 
+app.use('/api', bookingsRoutes);
+app.use('/api', meetingRoutes);  
 
 
 
@@ -56,72 +66,6 @@ app.get('/', (req, res) => {
   res.send('Tabourak Backend is working!');
 });
 
-///////////////////////////////////////////////////////////////////////////////////////
-/*
-app.get("/api/zoom/auth", (req, res) => {
-  const redirect_uri = "http://localhost:3000/api/zoom/callback";
-  const client_id = "AofrtcAhRLOl0mTxiFEx8w";
-  const zoomAuthURL = `https://zoom.us/oauth/authorize?response_type=code&client_id=${client_id}&redirect_uri=${redirect_uri}`;
-  res.redirect(zoomAuthURL);
-});
-
-app.get("/api/zoom/callback", async (req, res) => {
-  const code = req.query.code;
-  const redirect_uri = "http://localhost:3000/api/zoom/callback";
-
-  try {
-    const response = await axios.post("https://zoom.us/oauth/token", null, {
-      params: {
-        grant_type: "authorization_code",
-        code,
-        redirect_uri,
-      },
-      auth: {
-        username: "CwfOqO_DSYq54KS7R5rxeg",
-        password: "NRQqC1s4KvlXlBI4MMugXMD5LH98HvSz",
-      },
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-    });
-
-    const { access_token, refresh_token } = response.data;
-    res.send("Zoom connected successfully!");
-  } catch (error) {
-    console.error("Zoom Error:", error.response?.data || error.message);
-    res.status(500).json({ error: error.response?.data || "Zoom request failed" });
-  }
-});
-
-
-
-app.post("/api/zoom/create-meeting", async (req, res) => {
-  const { accessToken, topic, startTime, duration } = req.body;
-
-  const meeting = await axios.post(
-    "https://api.zoom.us/v2/users/me/meetings",
-    {
-      topic,
-      type: 2, // Scheduled Meeting
-      start_time: startTime,
-      duration, // 
-      settings: {
-        join_before_host: false,
-        waiting_room: true,
-      },
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-    }
-  );
-
-  res.json(meeting.data);
-});*/
-
-//////////////////////////////////////////////////////////////////////////////////////
 
 
 app.listen(3000, '0.0.0.0', () => {

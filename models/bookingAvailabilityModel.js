@@ -1,7 +1,7 @@
 const db = require('../config/db');
 const util = require('util');
 
-// نحول execute إلى Promise يدويًا
+
 const execute = util.promisify(db.execute).bind(db);
 
 exports.getAvailabilityForTwoWeeks = async (scheduleId) => {
