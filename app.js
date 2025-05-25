@@ -24,6 +24,14 @@ app.use('/api/upload', require('./routes/uploadRoutes'));
 app.use('/uploads', express.static('public/uploads')); // Serve uploaded files
 app.use('/api/user', require('./routes/userRoutes'));
 app.use('/api/meeting-types', require('./routes/meetingTypeRoutes'));
+app.use('/api/user-profile', require('./routes/userProfileRoutes'));
+app.use('/api/schedules', require('./routes/scheduleRoutes')); 
+app.use('/api/profile', require('./routes/ProfileRoutes'));
+app.use('/api/seasonal-availability', require('./routes/seasonalAvailabilityRoutes'));
+app.use('/api/date-specific-availability', require('./routes/dateSpecificAvailabilityRoutes'));
+app.use('/api/settings', require('./routes/settingsRoutes'));
+
+
 
 // Test endpoint
 app.get('/api/health', (req, res) => {

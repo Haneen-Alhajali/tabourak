@@ -13,4 +13,6 @@ router.get('/', availabilityController.getAvailability);
 // Update availability
 router.put('/', availabilityController.updateAvailability);
 
+router.get('/for-schedule', availabilityController.getAvailabilityForSchedule);
+
 module.exports = router;

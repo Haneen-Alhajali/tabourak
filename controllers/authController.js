@@ -86,7 +86,7 @@ exports.loginUser = (req, res) => {
 
     console.log('DEBUG: Password match, generating token');
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
+      expiresIn: "5h", //      expiresIn: "1h",
     });
     console.log('DEBUG: Login successful for user ID:', user.id);
 
@@ -102,6 +102,8 @@ exports.loginUser = (req, res) => {
     });
   });
 };
+
+
 // // controllers/authController.js
 // const userModel = require("../models/userModel");
 // const bcrypt = require("bcrypt");
