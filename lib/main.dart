@@ -11,7 +11,7 @@ import '../config/globals.dart';
 
 
 void main() {
-    globalAuthToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NSwiaWF0IjoxNzQ2NjI5NzcyLCJleHAiOjE3NDY2MzMzNzJ9.3oM4DJpHmPLXZRExIKL_9TqSfyjkvNG1UlMXAlwfSK4';
+    globalAuthToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzQ4MTY2OTYxLCJleHAiOjE3NDgxODQ5NjF9.syDAGYbekzu_yF85fYKnMXgSNMFOAsise_ev55QnxvE';
   runApp(MyApp());
 }
 
@@ -21,6 +21,16 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Tabourak Clone',
       theme: ThemeData(
+            snackBarTheme: SnackBarThemeData(
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            contentTextStyle: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         primarySwatch:  AppColors.primarySwatch,
         scaffoldBackgroundColor: AppColors.backgroundColor,
         fontFamily: 'Roboto',

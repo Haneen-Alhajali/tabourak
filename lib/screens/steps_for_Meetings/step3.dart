@@ -1,8 +1,9 @@
 // lib/screens/steps_for_Meetings/step3.dart
 import 'package:flutter/material.dart';
 import 'step4.dart';
-import '../../colors/app_colors.dart';
-import '../../config/globals.dart';
+import 'package:tabourak/config/config.dart';
+import 'package:tabourak/config/globals.dart';
+import 'package:tabourak/colors/app_colors.dart';
 
 
 class ConnectCalendarPage extends StatefulWidget {

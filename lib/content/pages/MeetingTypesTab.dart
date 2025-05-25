@@ -5,6 +5,7 @@ import 'package:tabourak/colors/app_colors.dart';
 import 'dart:convert';
 import 'package:tabourak/config/config.dart';
 import 'package:tabourak/config/globals.dart';
+import 'package:tabourak/config/snackbar_helper.dart';
 import 'MeetingDetailsPage.dart';
 import 'package:flutter/services.dart'; // For Clipboard
 import 'package:url_launcher/url_launcher.dart'; // For launchUrl
@@ -77,9 +78,10 @@ class _MeetingTypesTabState extends State<MeetingTypesTab> {
       setState(() {
         _hasError = true;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error loading meeting types: ${e.toString()}')),
-      );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text('Error loading meeting types: ${e.toString()}')),
+      // );
+      SnackbarHelper.showError(context, 'Error loading meeting types: ${e.toString()}');
     } finally {
       setState(() {
         _isLoading = false;
@@ -316,9 +318,10 @@ class _MeetingTypesTabState extends State<MeetingTypesTab> {
                                             }
                                           } catch (e) {
                                             print('Error creating meeting type: $e'); // Print to terminal
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text('Error creating meeting type: ${e.toString()}')),
-                                            );
+                                            // ScaffoldMessenger.of(context).showSnackBar(
+                                            //   SnackBar(content: Text('Error creating meeting type: ${e.toString()}')),
+                                            // );
+                                            SnackbarHelper.showError(context, 'Error creating meeting type: ${e.toString()}');
                                           }
                                         }
                                       },
@@ -374,9 +377,10 @@ class _MeetingTypesTabState extends State<MeetingTypesTab> {
       }
     } catch (e) {
         print('Error deleting meeting type: $e'); // Print to terminal
-        ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error deleting meeting type: ${e.toString()}')),
-      );
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text('Error deleting meeting type: ${e.toString()}')),
+      // );
+      SnackbarHelper.showError(context, 'Error deleting meeting type: ${e.toString()}');
     }
   }
 
@@ -602,9 +606,11 @@ class _MeetingTypesTabState extends State<MeetingTypesTab> {
                     onPressed: () {
                       // Add copy link functionality
                       Clipboard.setData(ClipboardData(text: link));
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Link copied to clipboard')),
-                      );
+                      // ScaffoldMessenger.of(context).showSnackBar(
+                      //   SnackBar(content: Text('Link copied to clipboard')),
+                      // );
+                      SnackbarHelper.showInfo(context, 'Link copied to clipboard');
+
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
@@ -638,9 +644,11 @@ class _MeetingTypesTabState extends State<MeetingTypesTab> {
                           if (await canLaunch(link)) {
                             await launch(link);
                           } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Could not launch $link')),
-                            );
+                            // ScaffoldMessenger.of(context).showSnackBar(
+                            //   SnackBar(content: Text('Could not launch $link')),
+                            // );
+                            SnackbarHelper.showError(context, 'Could not launch $link');
+
                           }
                         },
                         icon: Icon(

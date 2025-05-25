@@ -93,6 +93,9 @@ flutter:
     - images/loginBackground.png
     - images/signupBackground.png
     - images/calendar_icon.png
+    - images/invite.png
+    - images/stripe_logo.png
+    - images/paypal_logo.png
     - assets/lottie/
   #   - images/a_dot_ham.jpeg
 

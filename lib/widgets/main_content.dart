@@ -4,7 +4,7 @@ import '../content/meetings_content.dart';
 import '../content/pages/pages_content.dart';
 import '../content/availability&calender/availability_content_tabs.dart';
 import '../content/members_content.dart';
-import '../content/settings_content.dart';
+import '../content/settings/settings_content.dart';
 
 class MainContent extends StatelessWidget {
   final String? selectedNav;

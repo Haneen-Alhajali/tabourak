@@ -8,9 +8,9 @@ import 'package:tabourak/screens/home_screen.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'dart:async';
-import '../../colors/app_colors.dart';
-import '../../config/config.dart';
-import '../../config/globals.dart';
+import 'package:tabourak/config/config.dart';
+import 'package:tabourak/config/globals.dart';
+import 'package:tabourak/colors/app_colors.dart';
 
 class SchedulingPage extends StatefulWidget {
   const SchedulingPage({Key? key}) : super(key: key);
@@ -537,6 +537,8 @@ class _SchedulingPageState extends State<SchedulingPage> {
     );
   }
 }
+
+
 // // lib\screens\steps_for_Meetings\step4.dart
 // // lib\screens\steps_for_Meetings\step4.dart
 // import 'package:flutter/material.dart';

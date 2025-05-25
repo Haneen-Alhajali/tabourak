@@ -88,23 +88,23 @@ class Sidebar extends StatelessWidget {
             ),
           ),
           // Upgrade Button
-          Container(
-            padding: EdgeInsets.all(16),
-            child: ElevatedButton.icon(
-              onPressed: () {
-                // Handle upgrade
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.accentColor,
-                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-              ),
-              icon: Icon(Icons.star, color: AppColors.backgroundColor),
-              label: Text(
-                'Upgrade',
-                style: TextStyle(color:AppColors.backgroundColor),
-              ),
-            ),
-          ),
+          // Container(
+          //   padding: EdgeInsets.all(16),
+          //   child: ElevatedButton.icon(
+          //     onPressed: () {
+          //       // Handle upgrade
+          //     },
+          //     style: ElevatedButton.styleFrom(
+          //       backgroundColor: AppColors.accentColor,
+          //       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+          //     ),
+          //     icon: Icon(Icons.star, color: AppColors.backgroundColor),
+          //     label: Text(
+          //       'Upgrade',
+          //       style: TextStyle(color:AppColors.backgroundColor),
+          //     ),
+          //   ),
+          // ),
           // User Profile at the Bottom
           Container(
             margin: EdgeInsets.only(bottom: 16), 

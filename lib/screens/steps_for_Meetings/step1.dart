@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'step2.dart';
-import '../../colors/app_colors.dart';
-import '../../config/config.dart';
-import '../../config/globals.dart';
+import 'package:tabourak/config/config.dart';
+import 'package:tabourak/config/globals.dart';
+import 'package:tabourak/colors/app_colors.dart';
 
 class AppointmentSetupScreen extends StatefulWidget {
   const AppointmentSetupScreen({Key? key}) : super(key: key);
@@ -290,6 +290,9 @@ class _AppointmentSetupScreenState extends State<AppointmentSetupScreen> {
     );
   }
 }
+
+
+
 // import 'package:flutter/material.dart';
 // import 'package:http/http.dart' as http;
 // import 'dart:convert';
