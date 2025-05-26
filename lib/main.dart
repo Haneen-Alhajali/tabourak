@@ -8,11 +8,18 @@ import 'screens/admin/admin_dashboard.dart';
 import 'screens/home_screen.dart';
 import '../colors/app_colors.dart'; 
 import '../config/globals.dart';
-
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:tabourak/web%20pages/MeetingBooking.dart';
 
 void main() {
     globalAuthToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzQ4MTY2OTYxLCJleHAiOjE3NDgxODQ5NjF9.syDAGYbekzu_yF85fYKnMXgSNMFOAsise_ev55QnxvE';
+ if (kIsWeb) {
+    runApp(MeetingApp()); 
+  }
+  else{
   runApp(MyApp());
+
+  }
 }
 
 class MyApp extends StatelessWidget {

@@ -38,10 +38,20 @@ dependencies:
   smooth_page_indicator: ^1.0.0
   lottie: ^2.6.0
   supabase_flutter: ^2.8.4
+  google_sign_in: ^6.1.5
   timezone: ^0.9.1
   path: ^1.8.2
   http_parser: ^4.0.2
   syncfusion_flutter_datepicker: ^20.4.48
+  file_selector: ^1.0.2
+  url_launcher: ^6.2.4
+  google_maps_flutter: ^2.5.0
+  geocoding: ^2.1.0
+  font_awesome_flutter: ^10.4.0
+  dio: ^5.4.0
+  path_provider: ^2.1.2
+  permission_handler: ^11.3.1
+
 
 
 
@@ -49,17 +59,19 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  app_links: ^6.4.0
+
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  flutter_launcher_icons: ^0.13.1  # تأكد من استخدام أحدث إصدار
+  flutter_launcher_icons: ^0.13.1  
 
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "images/tabourak_logo.png"  # ضع مسار الأيقونة هنا
+  image_path: "images/tabourak_logo.png"  
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

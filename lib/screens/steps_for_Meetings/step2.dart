@@ -161,7 +161,7 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ConnectCalendarPage(),
+            builder: (context) => CalendarPage(),
           ),
         );
       } else {

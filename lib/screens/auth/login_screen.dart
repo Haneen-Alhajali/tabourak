@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:tabourak/colors/app_colors.dart';
-import 'package:tabourak/screens/auth/signup_screen.dart';
+import 'package:tabourak/screens/auth/sendOTPScreen.dart';
 import 'package:http/http.dart' as http;
 import 'package:tabourak/screens/home_screen.dart';
 import 'dart:convert';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../../config/config.dart';
-
 
 class LoginPage extends StatefulWidget {
   @override
@@ -13,6 +13,12 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: ['email', 'https://www.googleapis.com/auth/userinfo.profile'],
+    serverClientId:
+        '1014877598829-img83d5tkn6cu53oj8668055oqrkp2gl.apps.googleusercontent.com',
+  );
+
   /////////////////////ADD FOR VALID EMAIL
   Future<bool> _isEmailValid(String email) async {
     final uri = Uri.parse(
@@ -24,6 +30,7 @@ class _LoginPageState extends State<LoginPage> {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+
         return data['deliverability'] == 'DELIVERABLE';
       } else {
         return false;
@@ -33,6 +40,7 @@ class _LoginPageState extends State<LoginPage> {
       return false;
     }
   }
+
   ///////////////////////////////////END OF VALID EMAIL
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -62,6 +70,11 @@ class _LoginPageState extends State<LoginPage> {
         body: jsonEncode({"email": email, "password": password}),
       );
 
+      final responseData = jsonDecode(response.body);
+      print(
+        '🔴🔴🔴 🔴🔴🔴 🔴🔴🔴 🔴🔴🔴 🔴🔴🔴 🔴🔴🔴 🔴🔴🔴 🔴🔴🔴 🔴🔴🔴 🔴🔴🔴Response data: $responseData',
+      );
+
       if (response.statusCode == 200) {
         Navigator.pushReplacement(
           context,
@@ -75,6 +88,65 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  //////////for google
+  Future<void> _signInWithGoogle() async {
+    try {
+      await _googleSignIn.signOut();
+
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) return;
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      print('Google Auth Data:');
+      print('ID Token: ${googleAuth.idToken}');
+      print('Access Token: ${googleAuth.accessToken}');
+      print('Email: ${googleUser.email}');
+
+      if (googleAuth.idToken == null) {
+        throw Exception('Google ID Token is null. Please try again.');
+      }
+
+      final response = await http.post(
+        Uri.parse('${AppConfig.baseUrl}/api/auth/google'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "token": googleAuth.idToken, //
+          "email": googleUser.email,
+          "name": googleUser.displayName,
+        }),
+      );
+
+      final responseData = jsonDecode(response.body);
+      print(
+        '🔴🔴🔴 🔴🔴🔴 🔴🔴🔴 🔴🔴🔴 🔴🔴🔴 🔴🔴🔴 🔴🔴🔴 🔴🔴🔴 🔴🔴🔴 🔴🔴🔴Response data: $responseData',
+      );
+
+      print('Backend Response: ${response.statusCode} - ${response.body}');
+
+      if (response.statusCode == 200) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomeScreen()),
+        );
+      } else {
+        try {
+          final responseBody = jsonDecode(response.body);
+          String errorMessage =
+              responseBody['message'] ?? 'Unknown error occurred';
+          _showErrorDialog("$errorMessage");
+        } catch (e) {
+          _showErrorDialog("Google login failed. Please try again.");
+        }
+      }
+    } catch (e) {
+      print('Full Error: $e');
+      _showErrorDialog("Error signing in with Google: ${e.toString()}");
+    }
+  }
+
+  ///  //////////////////for goolge
 
   void _showErrorDialog(String message) {
     showDialog(
@@ -204,32 +276,40 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
 
-              const SizedBox(height: 10),
-            /*  SizedBox(
+              const SizedBox(height: 20),
+
+              // Google Sign-In Button
+              SizedBox(
                 width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: _Aouth,
+                child: ElevatedButton(
+                  onPressed: _signInWithGoogle,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryColor,
+                    backgroundColor: Colors.white,
                     padding: EdgeInsets.symmetric(vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
-                  icon: Icon(Icons.login, color: Colors.white),
-                  label: Text(
-                    "LOGIN WITH AUTH0",
-                    style: TextStyle(color: Colors.white),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset('images/google_logo.png', height: 24),
+                      SizedBox(width: 10),
+                      Text(
+                        "Sign in with Google",
+                        style: TextStyle(color: Colors.black87),
+                      ),
+                    ],
                   ),
                 ),
               ),
-*/
+
               Center(
                 child: TextButton(
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => RegisterPage()),
+                      MaterialPageRoute(builder: (context) => SendOtpScreen()),
                     );
                   },
                   child: Text(

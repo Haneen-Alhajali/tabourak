@@ -1,548 +1,250 @@
-// lib/screens/steps_for_Meetings/step3.dart
+//C:\Users\User\Desktop\flutter project\tabourak\lib\screens\steps_for_Meetings\step3.dart
 import 'package:flutter/material.dart';
-import 'step4.dart';
-import 'package:tabourak/config/config.dart';
-import 'package:tabourak/config/globals.dart';
-import 'package:tabourak/colors/app_colors.dart';
+import 'package:tabourak/screens/steps_for_Meetings/step3complet.dart';
+import 'package:tabourak/screens/steps_for_Meetings/step4.dart';
+import '../../colors/app_colors.dart';
+
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:google_sign_in/google_sign_in.dart';
+import '../../config/config.dart';
+import '../../config/globals.dart';
+
+class CalendarPage extends StatelessWidget {
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: [
+      'email',
+      'https://www.googleapis.com/auth/calendar',
+      'https://www.googleapis.com/auth/calendar.events',
+    ],
+    serverClientId:
+        '1014877598829-img83d5tkn6cu53oj8668055oqrkp2gl.apps.googleusercontent.com',
+    forceCodeForRefreshToken: true,
+  );
+  
+
+  Future<void> _connectCalrnder(BuildContext context) async {
+    print('here inside the calender');
+
+    try {
+      await _googleSignIn.signOut();
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) return;
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+      final accessToken = googleAuth.accessToken;
 
 
-class ConnectCalendarPage extends StatefulWidget {
+      final calendarResponse = await http.get(
+        Uri.parse(
+          'https://www.googleapis.com/calendar/v3/users/me/calendarList',
+        ),
+        headers: {'Authorization': 'Bearer $accessToken'},
+      );
 
-  const ConnectCalendarPage({Key? key}) : super(key: key);
+      print(calendarResponse.body);
 
-  @override
-  _ConnectCalendarPageState createState() => _ConnectCalendarPageState();
-}
+      final response = await http.post(
+        Uri.parse('${AppConfig.baseUrl}/api/calendar/connect'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "accessToken": googleAuth.accessToken,
+          "email": googleUser.email,
+          "globalAuthToken": globalAuthToken,
+        }),
+      );
 
-class _ConnectCalendarPageState extends State<ConnectCalendarPage> {
-  String _selectedCalendar = "s12113539@stu.najah.edu";
-  List<String> _selectedCalendarsForCheck = ["s12113539@stu.najah.edu"];
-  List<String> _availableCalendars = [
-    "s12113539@stu.najah.edu",
-    "personal@gmail.com",
-    "work@company.com"
-  ];
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
-      body: Column(
-        children: [
-          // Header
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 60, 20, 20),
-            child: Row(
-              children: [
-                Image.asset(
-                  'images/tabourakNobackground.png',
-                  width: 60,
-                  height: 60,
-                ),
-                const Spacer(),
-                Text(
-                  "Step 3 of 4",
-                  style: TextStyle(
-                    color: AppColors.textColorSecond,
-                    fontSize: 15,
-                  ),
-                ),
-              ],
-            ),
+      print('Google Auth Data:');
+      print('ID Token: ${googleAuth.idToken}');
+      print('Access Token: ${googleAuth.accessToken}');
+      print('Email: ${googleUser.email}');
+
+      print('Backend Response: ${response.statusCode} - ${response.body}');
+
+      if (response.statusCode == 200) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder:
+                (context) => ConnectCalendarPage(accessToken: accessToken!),
           ),
-          
-          // Main content
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                children: [
-                  // Title section
-                  Column(
-                    children: [
-                      Text(
-                        "Connect Your Calendar",
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textColor,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        "Ensure that existing events in your calendar block out times on your scheduling page.",
-                        style: TextStyle(
-                          color: AppColors.textColorSecond,
-                          fontSize: 16,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 30),
+        );
+      } else {
+        try {
+          final responseBody = jsonDecode(response.body);
+          String errorMessage =
+              responseBody['message'] ?? 'Unknown error occurred';
+          _showErrorDialog(context, "$errorMessage");
+        } catch (e) {
+          _showErrorDialog(context, "Google login failed. Please try again.");
+        }
+      }
+    } catch (e) {
+      print("");
 
-                  // Connected account card
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.backgroundColor,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: AppColors.textColorSecond.withOpacity(0.3),
-                        width: 1,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        Image.asset(
-                          'images/google_logo.png',
-                          width: 48,
-                          height: 48,
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Connected to Google",
-                                style: TextStyle(
-                                  color: AppColors.textColorSecond,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              Text(
-                                "s12113539@stu.najah.edu",
-                                style: TextStyle(
-                                  color: AppColors.textColor,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Icon(
-                          Icons.check_circle,
-                          color: AppColors.primaryColor,
-                          size: 36,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-
-                  // Sync options
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "How should we sync with your calendar?",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textColor,
-                          fontSize: 16,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-
-                      // Add meetings option
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: AppColors.backgroundColor,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: AppColors.textColorSecond.withOpacity(0.3),
-                            width: 1,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Image.asset(
-                                  'images/calendar_add.png',
-                                  width: 40,
-                                  height: 40,
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Text(
-                                    "Add scheduled meetings to this calendar:",
-                                    style: TextStyle(
-                                      color: AppColors.textColor,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 16),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(6),
-                                border: Border.all(
-                                  color: AppColors.textColorSecond.withOpacity(0.3),
-                                  width: 1,
-                                ),
-                              ),
-                              child: DropdownButton<String>(
-                                isExpanded: true,
-                                underline: const SizedBox(),
-                                value: _selectedCalendar,
-                                items: _availableCalendars.map((calendar) {
-                                  return DropdownMenuItem(
-                                    value: calendar,
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          width: 12,
-                                          height: 12,
-                                          decoration: BoxDecoration(
-                                            color: AppColors.primaryColor,
-                                            shape: BoxShape.circle,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Text(calendar),
-                                      ],
-                                    ),
-                                  );
-                                }).toList(),
-                                onChanged: (value) {
-                                  setState(() {
-                                    _selectedCalendar = value!;
-                                  });
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Prevent double bookings option
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: AppColors.backgroundColor,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: AppColors.textColorSecond.withOpacity(0.3),
-                            width: 1,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Image.asset(
-                                  'images/available_dates.png',
-                                  width: 40,
-                                  height: 40,
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Text(
-                                    "Check events in these calendars to prevent double-bookings:",
-                                    style: TextStyle(
-                                      color: AppColors.textColor,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 16),
-                            // Selected calendars chips
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              children: _selectedCalendarsForCheck.map((calendar) {
-                                return Chip(
-                                  backgroundColor: AppColors.backgroundColor,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(6),
-                                    side: BorderSide(
-                                      color: AppColors.textColorSecond.withOpacity(0.3),
-                                      width: 1,
-                                    ),
-                                  ),
-                                  label: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Container(
-                                        width: 12,
-                                        height: 12,
-                                        decoration: BoxDecoration(
-                                          color: AppColors.primaryColor,
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(calendar),
-                                    ],
-                                  ),
-                                  deleteIcon: Icon(
-                                    Icons.close,
-                                    size: 16,
-                                    color: AppColors.textColorSecond,
-                                  ),
-                                  onDeleted: () {
-                                    setState(() {
-                                      _selectedCalendarsForCheck.remove(calendar);
-                                    });
-                                  },
-                                );
-                              }).toList(),
-                            ),
-                            const SizedBox(height: 8),
-                            // Add calendar button
-                            OutlinedButton(
-                              onPressed: () {
-                                _showCalendarSelectionDialog(context);
-                              },
-                              style: OutlinedButton.styleFrom(
-                                side: BorderSide(
-                                  color: AppColors.primaryColor,
-                                  width: 1,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                              ),
-                              child: const Text("+ Add Calendar"),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 40),
-                ],
-              ),
-            ),
-          ),
-
-          // Next button and footer
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => SchedulingPage(),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryColor,
-                    minimumSize: const Size(double.infinity, 50),
-                  ),
-                  child: const Text(
-                    "Next: Your Information →",
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  "Privacy Policy | Terms & Conditions",
-                  style: TextStyle(color: AppColors.textColorSecond, fontSize: 12),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  "© 2025 Tabourak",
-                  style: TextStyle(color: AppColors.textColorSecond, fontSize: 12),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+      _showErrorDialog(
+        context,
+        "Error signing in with Google: ${e.toString()}",
+      );
+    }
   }
 
-  void _showCalendarSelectionDialog(BuildContext context) {
+  void _showErrorDialog(BuildContext context, String message) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (context) {
         return AlertDialog(
-          title: const Text("Select Calendars"),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: _availableCalendars.length,
-              itemBuilder: (context, index) {
-                final calendar = _availableCalendars[index];
-                return CheckboxListTile(
-                  title: Text(calendar),
-                  value: _selectedCalendarsForCheck.contains(calendar),
-                  onChanged: (bool? selected) {
-                    setState(() {
-                      if (selected == true) {
-                        if (!_selectedCalendarsForCheck.contains(calendar)) {
-                          _selectedCalendarsForCheck.add(calendar);
-                        }
-                      } else {
-                        _selectedCalendarsForCheck.remove(calendar);
-                      }
-                    });
-                  },
-                );
-              },
-            ),
+          title: Text(
+            "Login Error",
+            style: TextStyle(color: AppColors.primaryColor),
           ),
+          content: Text(message),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("Done"),
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                "OK",
+                style: TextStyle(color: AppColors.primaryColor),
+              ),
             ),
           ],
         );
       },
     );
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.backgroundColor,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 20),
+              Align(
+                alignment: Alignment.topRight,
+                child: Text(
+                  "Step 4 of 5",
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ),
+              const SizedBox(height: 40),
+
+              const SizedBox(height: 40),
+              Text(
+                "Connect Your Calendar",
+                style: TextStyle(
+                  color: AppColors.textColor,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                "Ensure that existing events in your calendar block out times on your scheduling page.",
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey[700]),
+              ),
+              const SizedBox(height: 30),
+
+              // Google Connect Button
+              _buildConnectBox(
+                iconPath: 'images/google_logo.png',
+                title: 'Google',
+                subtitle: 'Gmail & Google Workspace (aka GSuite) accounts.',
+                onPressed: () {
+                  _connectCalrnder(context);
+                },
+              ),
+              const SizedBox(height: 16),
+
+              const Spacer(),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      transitionDuration: Duration(milliseconds: 500),
+                      pageBuilder: (_, __, ___) => SchedulingPage(),
+                      transitionsBuilder: (_, animation, __, child) {
+                        return SlideTransition(
+                          position: Tween<Offset>(
+                            begin: Offset(1, 0),
+                            end: Offset(0, 0),
+                          ).animate(animation),
+                          child: child,
+                        );
+                      },
+                    ),
+                  );
+                },
+                child: Text(
+                  "I don’t want to connect my calendar right now",
+                  style: TextStyle(color: AppColors.primaryColor, fontSize: 14),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text("© 2025 Tabourak", style: TextStyle(color: Colors.grey)),
+              Text(
+                "Privacy Policy | Terms & Conditions",
+                style: TextStyle(color: Colors.grey, fontSize: 12),
+              ),
+              const SizedBox(height: 10),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildConnectBox({
+    required String iconPath,
+    required String title,
+    required String subtitle,
+    required VoidCallback onPressed,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.backgroundColor,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 5)],
+      ),
+      child: Row(
+        children: [
+          Image.asset(iconPath, height: 32, width: 32),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(
+                  subtitle,
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+          ElevatedButton(
+            onPressed: onPressed,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryColor,
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: Text("Connect", style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
 }
-// import 'package:flutter/material.dart';
-// import 'step4.dart';
-// import '../../colors/app_colors.dart';
-
-// class ConnectCalendarPage extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: AppColors.backgroundColor,
-//       body: Padding(
-//         padding: const EdgeInsets.all(20.0),
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             const SizedBox(height: 50),
-//             Row(
-//               children: [
-//                 Icon(Icons.calendar_today, color: AppColors.primaryColor),
-//                 SizedBox(width: 10),
-//                 Text(
-//                   "Connect Your Calendar",
-//                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-//                 ),
-//               ],
-//             ),
-//             SizedBox(height: 10),
-//             Text("Ensure that existing events in your calendar block out times on your scheduling page."),
-//             SizedBox(height: 20),
-//             Container(
-//               padding: EdgeInsets.all(10),
-//               decoration: BoxDecoration(
-//                 color: AppColors.backgroundColor,
-//                 borderRadius: BorderRadius.circular(10),
-//                 boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 5)],
-//               ),
-//               child: Row(
-//                 children: [
-                
-                
-//                   SizedBox(width: 10),
-//                   Expanded(child: Text("Connected to Google\ns12113539@stu.najah.edu")),
-//                   Icon(Icons.check_circle, color:AppColors.primaryColor),
-//                 ],
-//               ),
-//             ),
-//             SizedBox(height: 20),
-//             Text("How should we sync with your calendar?", style: TextStyle(fontWeight: FontWeight.bold)),
-//             SizedBox(height: 10),
-//             _buildDropdown("Add scheduled meetings to this calendar"),
-//             SizedBox(height: 10),
-//             _buildDropdown("Check events in these calendars to prevent double-bookings"),
-//             Spacer(),
-//             ElevatedButton(
-//               style: ElevatedButton.styleFrom(
-//                 backgroundColor:AppColors.primaryColor,
-//                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-//                 padding: EdgeInsets.symmetric(vertical: 15),
-//               ),
-//               onPressed: () {
-//                   Navigator.push(
-//                     context,
-//                     PageRouteBuilder(
-//                       transitionDuration: Duration(milliseconds: 500),
-//                       pageBuilder: (_, __, ___) => SchedulingPage(),
-//                       transitionsBuilder: (_, animation, __, child) {
-//                         return SlideTransition(
-//                           position: Tween<Offset>(
-//                             begin: Offset(1, 0),
-//                             end: Offset(0, 0),
-//                           ).animate(animation),
-//                           child: child,
-//                         );
-//                       },
-//                     ),
-//                   );
-//                 },
-//               child: Center(child: Text("Next: Your Information →", style: TextStyle(fontSize: 16, color:AppColors.backgroundColor))),
-//             ),
-//             SizedBox(height: 20),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _buildDropdown(String title) {
-//     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         Text(title, style: TextStyle(fontWeight: FontWeight.w500)),
-//         SizedBox(height: 5),
-//         Container(
-//           padding: EdgeInsets.symmetric(horizontal: 10),
-//           decoration: BoxDecoration(
-//             color: AppColors.backgroundColor,
-//             borderRadius: BorderRadius.circular(8),
-//             boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 5)],
-//           ),
-//           child: DropdownButton<String>(
-//             isExpanded: true,
-//             underline: SizedBox(),
-//             value: "s12113539@stu.najah.edu",
-//             items: [
-//               DropdownMenuItem(value: "s12113539@stu.najah.edu", child: Text("s12113539@stu.najah.edu")),
-//             ],
-//             onChanged: (value) {},
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-
-// }
-
