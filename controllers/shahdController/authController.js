@@ -1,5 +1,5 @@
 const userModel = require("../../models/shahdModels/userModel");
-const bcrypt = require("bcrypt");
+const bcrypt = require('bcryptjs');
 const jwt = require("jsonwebtoken");
 const { findUserByEmail } = require("../../models/shahdModels/userModel");
 const { verifyGoogleToken } = require("./googleAuthController");
