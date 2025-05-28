@@ -15,9 +15,10 @@ db.connect((err) => {
 module.exports = db;
 */
 
+
 const mysql = require('mysql2');
 
-// استخدمي pool بدلاً من connection
+
 const db = mysql.createPool({
   host: 'localhost',
   user: 'root',
