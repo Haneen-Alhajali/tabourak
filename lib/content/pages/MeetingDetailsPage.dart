@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:tabourak/colors/app_colors.dart';
 import 'package:tabourak/config/config.dart';
 import 'package:tabourak/content/pages/FormFieldApp.dart';
@@ -41,11 +42,16 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
     if (response.statusCode != 200) {
       throw Exception('Failed to delete field from database');
     }
+
+          print("🔴🔴🔴🔴🔴deleteFieldFromDatabase🔴🔴");
+
   }
 
   ///////////////////////////// for ordering
   Future<void> updateFieldOrderInDatabase(int fieldId, int newOrder) async {
-    final url = Uri.parse('${AppConfig.baseUrl}/api/custom-fields/order/$fieldId');
+    final url = Uri.parse(
+      '${AppConfig.baseUrl}/api/custom-fields/order/$fieldId',
+    );
     print('📡 PATCH → $url with order=$newOrder');
 
     final response = await http.put(
@@ -107,8 +113,14 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
   //for customFields
   Future<void> saveCustomFields(int appointmentId) async {
     for (var field in customFields) {
-      print("🔴🔴🔴🔴🔴✅✅✅✅✅✅✅✅✅✅✅✅customFields  ✅✅✅✅✅✅✅✅✅✅✅✅🔴🔴🔴🔴🔴 " + customFields.toString());
-      print("🔴🔴🔴🔴🔴✅✅✅✅✅✅✅✅✅✅✅✅allFields.length✅✅✅✅✅✅✅✅✅✅✅✅🔴🔴🔴🔴🔴 " + allFields.length.toString());
+      print(
+        "🔴🔴🔴🔴🔴✅✅✅✅✅✅✅✅✅✅✅✅customFields  ✅✅✅✅✅✅✅✅✅✅✅✅🔴🔴🔴🔴🔴 " +
+            customFields.toString(),
+      );
+      print(
+        "🔴🔴🔴🔴🔴✅✅✅✅✅✅✅✅✅✅✅✅allFields.length✅✅✅✅✅✅✅✅✅✅✅✅🔴🔴🔴🔴🔴 " +
+            allFields.length.toString(),
+      );
 
       final response = await http.post(
         Uri.parse('${AppConfig.baseUrl}/api/custom-fields'),
@@ -121,16 +133,19 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
           "help_text": field['help_text'] ?? null,
           "display_order": allFields.length,
           "default_value": field['default_value'] ?? null,
-          "options": field['options'] is List<String>
-              ? field['options']
-              : (field['options'] is List
-                  ? List<String>.from(field['options'].map((e) => e.toString()))
-                  : []),
+          "options":
+              field['options'] is List<String>
+                  ? field['options']
+                  : (field['options'] is List
+                      ? List<String>.from(
+                        field['options'].map((e) => e.toString()),
+                      )
+                      : []),
         }),
       );
 
       if (response.statusCode == 201) {
-        print("saveed successfully ${field['label']}");
+        print("🎨🎨saveed successfully ${field['label']}");
       } else {
         print("error in save ${response.body}");
       }
@@ -152,7 +167,8 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
         } else if (message == 'Phone call meeting') {
           selectedLocation = 'phone';
           phoneNumberController.text = data['phone'] ?? '';
-        } else if (message == 'Phone number not provided for phone call meeting.') {
+        } else if (message ==
+            'Phone number not provided for phone call meeting.') {
           selectedLocation = 'phone';
           phoneNumberController.clear();
         } else if (message == 'In-person meeting at the following location') {
@@ -173,7 +189,9 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
   }
 
   Future<void> updateAppointmentDetails() async {
-    final url = Uri.parse('${AppConfig.baseUrl}/api/appointment/$appointmentId');
+    final url = Uri.parse(
+      '${AppConfig.baseUrl}/api/appointment/$appointmentId',
+    );
     Map<String, dynamic> body = {};
 
     if (selectedLocation == "web") {
@@ -192,11 +210,18 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
       body = {"meeting_type": "in_person"};
     }
 
+    print("🔴🔴🔴🔴🔴body🔴🔴🔴🔴🔴" + body.toString());
+
     final response = await http.put(
       url,
       headers: {"Content-Type": "application/json"},
       body: json.encode(body),
     );
+
+    print("🔴 Status Code: ${response.statusCode}");
+
+    final responseData = json.decode(response.body);
+    print("🔴 Response JSON: ${jsonEncode(responseData)}");
 
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -204,8 +229,9 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
       );
     } else {
       print("Failed to update appointment: ${response.body}");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update appointment')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to update appointment')));
     }
   }
 
@@ -226,17 +252,26 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
   int selectedColorIndex = 0;
 
   final List<Color> colorOptions = [
-    Color(0xFF1C8B97), Color(0xFF2980B9), Color(0xFF0ED70A),
-    Color(0xFF009432), Color(0xFFC40404), Color(0xFFED4C67),
-    Color(0xFFFA8A1A), Color(0xFF851EFF), Color(0xFFD980FA),
-    Color(0xFFF1C40F), Color(0xFF8A9199),
+    Color(0xFF1C8B97),
+    Color(0xFF2980B9),
+    Color(0xFF0ED70A),
+    Color(0xFF009432),
+    Color(0xFFC40404),
+    Color(0xFFED4C67),
+    Color(0xFFFA8A1A),
+    Color(0xFF851EFF),
+    Color(0xFFD980FA),
+    Color(0xFFF1C40F),
+    Color(0xFF8A9199),
   ];
 
   @override
   void initState() {
     super.initState();
     titleController = TextEditingController(text: widget.title);
-    lengthController = TextEditingController(text: widget.duration.split(" ")[0]);
+    lengthController = TextEditingController(
+      text: widget.duration.split(" ")[0],
+    );
     fetchAppointmentDetails();
     fetchExistingFields(17);
     allFields = [...existingFields, ...customFields];
@@ -247,80 +282,102 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
     final Offset offset = renderBox.localToGlobal(Offset.zero);
 
     _publishOverlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        left: offset.dx,
-        top: offset.dy + 40,
-        child: Material(
-          elevation: 4,
-          child: Container(
-            width: 256,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(4),
-              border: Border.all(
-                color: AppColors.mediumColor,
-                width: 1,
+      builder:
+          (context) => Positioned(
+            left: offset.dx,
+            top: offset.dy + 40,
+            child: Material(
+              elevation: 4,
+              child: Container(
+                width: 256,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: AppColors.mediumColor, width: 1),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        setState(() => _publishStatus = 'Published');
+                        _publishOverlayEntry?.remove();
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(12),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.visibility,
+                              size: 20,
+                              color: Colors.green,
+                            ),
+                            SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Published',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Attendees are allowed to schedule new meetings',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Divider(height: 1),
+                    InkWell(
+                      onTap: () {
+                        setState(() => _publishStatus = 'Disabled');
+                        _publishOverlayEntry?.remove();
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(12),
+                        child: Row(
+                          children: [
+                            Icon(Icons.block, size: 20, color: Colors.red),
+                            SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Disabled',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Attendees will be prevented from scheduling new meetings',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                InkWell(
-                  onTap: () {
-                    setState(() => _publishStatus = 'Published');
-                    _publishOverlayEntry?.remove();
-                  },
-                  child: Container(
-                    padding: EdgeInsets.all(12),
-                    child: Row(
-                      children: [
-                        Icon(Icons.visibility, size: 20, color: Colors.green),
-                        SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Published', style: TextStyle(fontWeight: FontWeight.bold)),
-                              Text('Attendees are allowed to schedule new meetings',
-                                  style: TextStyle(fontSize: 12, color: Colors.grey)),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Divider(height: 1),
-                InkWell(
-                  onTap: () {
-                    setState(() => _publishStatus = 'Disabled');
-                    _publishOverlayEntry?.remove();
-                  },
-                  child: Container(
-                    padding: EdgeInsets.all(12),
-                    child: Row(
-                      children: [
-                        Icon(Icons.block, size: 20, color: Colors.red),
-                        SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Disabled', style: TextStyle(fontWeight: FontWeight.bold)),
-                              Text('Attendees will be prevented from scheduling new meetings',
-                                  style: TextStyle(fontSize: 12, color: Colors.grey)),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
           ),
-        ),
-      ),
     );
 
     Overlay.of(context)?.insert(_publishOverlayEntry!);
@@ -328,26 +385,46 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
 
   IconData getIconByName(String name) {
     switch (name) {
-      case 'Text Field': return Icons.text_fields;
-      case 'Paragraph Field': return Icons.notes;
-      case 'Choice Field': return Icons.radio_button_checked;
-      case 'Multiple Choice Field': return Icons.check_circle_outline;
-      case 'Checkbox Field': return Icons.check_box;
-      case 'Place Field': return Icons.place;
-      case 'Date Field': return Icons.date_range;
-      case 'Time Field': return Icons.access_time;
-      case 'Upload File': return Icons.upload_file;
-      case 'text': return Icons.text_fields;
-      case 'textarea': return Icons.notes;
-      case 'dropdown': return Icons.arrow_drop_down_circle;
-      case 'checkbox': return Icons.check_box;
-      case 'radio': return Icons.radio_button_checked;
-      case 'place': return Icons.place;
-      case 'date': return Icons.date_range;
-      case 'time': return Icons.access_time;
-      case 'file': return Icons.upload_file;
-      case 'multiple_choice': return Icons.check_circle_outline;
-      default: return Icons.text_fields;
+      case 'Text Field':
+        return Icons.text_fields;
+      case 'Paragraph Field':
+        return Icons.notes;
+      case 'Choice Field':
+        return Icons.radio_button_checked;
+      case 'Multiple Choice Field':
+        return Icons.check_circle_outline;
+      case 'Checkbox Field':
+        return Icons.check_box;
+      case 'Place Field':
+        return Icons.place;
+      case 'Date Field':
+        return Icons.date_range;
+      case 'Time Field':
+        return Icons.access_time;
+      case 'Upload File':
+        return Icons.upload_file;
+      case 'text':
+        return Icons.text_fields;
+      case 'textarea':
+        return Icons.notes;
+      case 'dropdown':
+        return Icons.arrow_drop_down_circle;
+      case 'checkbox':
+        return Icons.check_box;
+      case 'radio':
+        return Icons.radio_button_checked;
+      case 'place':
+        return Icons.place;
+      case 'date':
+        return Icons.date_range;
+      case 'time':
+        return Icons.access_time;
+      case 'file':
+        return Icons.upload_file;
+      case 'multiple_choice':
+        return Icons.check_circle_outline;
+      default:
+        return Icons.text_fields;
     }
   }
 
@@ -389,21 +466,33 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                               width: 1,
                             ),
                           ),
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
                         ),
                         onPressed: _showPublishDropdown,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
-                              _publishStatus == 'Published' ? Icons.visibility : Icons.block,
+                              _publishStatus == 'Published'
+                                  ? Icons.visibility
+                                  : Icons.block,
                               size: 16,
-                              color: _publishStatus == 'Published' ? Colors.green : Colors.red,
+                              color:
+                                  _publishStatus == 'Published'
+                                      ? Colors.green
+                                      : Colors.red,
                             ),
                             SizedBox(width: 8),
                             Text(_publishStatus),
                             SizedBox(width: 8),
-                            Icon(Icons.arrow_drop_down, size: 16, color: AppColors.textColor),
+                            Icon(
+                              Icons.arrow_drop_down,
+                              size: 16,
+                              color: AppColors.textColor,
+                            ),
                           ],
                         ),
                       ),
@@ -414,7 +503,10 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                       child: ElevatedButton(
                         onPressed: () async {
                           allFields = [...existingFields, ...customFields];
-                          print(" ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅ allFields = [...existingFields,..];   " + allFields.toString());
+                          print(
+                            " ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅ allFields = [...existingFields,..];   " +
+                                allFields.toString(),
+                          );
                           await updateAppointmentDetails();
                           customFields = [];
                         },
@@ -427,7 +519,10 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primaryColor,
-                          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 12,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(4),
                           ),
@@ -450,7 +545,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                   labelColor: AppColors.primaryColor,
                   unselectedLabelColor: AppColors.textColorSecond,
                   indicatorColor: AppColors.primaryColor,
-                  labelPadding: EdgeInsets.only(left:10,right: 15),
+                  labelPadding: EdgeInsets.only(left: 10, right: 15),
                   tabAlignment: TabAlignment.start,
                   tabs: [
                     Tab(text: 'General'),
@@ -532,12 +627,15 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                       SizedBox(width: 8),
                       DropdownButton<String>(
                         value: selectedUnit,
-                        items: ["Minutes", "Hours"]
-                            .map((unit) => DropdownMenuItem(
-                                  value: unit,
-                                  child: Text(unit),
-                                ))
-                            .toList(),
+                        items:
+                            ["Minutes", "Hours"]
+                                .map(
+                                  (unit) => DropdownMenuItem(
+                                    value: unit,
+                                    child: Text(unit),
+                                  ),
+                                )
+                                .toList(),
                         onChanged: (value) {
                           setState(() {
                             selectedUnit = value!;
@@ -566,13 +664,14 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                             color: colorOptions[index],
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: selectedColorIndex == index
-                              ? Icon(
-                                  Icons.check,
-                                  size: 16,
-                                  color: Colors.white,
-                                )
-                              : null,
+                          child:
+                              selectedColorIndex == index
+                                  ? Icon(
+                                    Icons.check,
+                                    size: 16,
+                                    color: Colors.white,
+                                  )
+                                  : null,
                         ),
                       );
                     }),
@@ -597,51 +696,52 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                     title: "We'll meet at a place",
                     selected: selectedLocation == "place",
                     onTap: () => setState(() => selectedLocation = "place"),
-                    child: selectedLocation == "place"
-                        ? Column(
-                            children: [
-                              RadioListTile(
-                                title: Text("I'll decide where we meet:"),
-                                value: "host",
-                                groupValue: locationDecision,
-                                onChanged: (val) {
-                                  setState(() {
-                                    locationDecision = val!;
-                                  });
-                                },
-                              ),
-                              if (locationDecision == "host")
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                  ),
-                                  child: TextField(
-                                    controller: locationController,
-                                    decoration: InputDecoration(
-                                      hintText: "Enter address",
-                                      prefixIcon: Icon(Icons.location_on),
-                                      border: OutlineInputBorder(),
+                    child:
+                        selectedLocation == "place"
+                            ? Column(
+                              children: [
+                                RadioListTile(
+                                  title: Text("I'll decide where we meet:"),
+                                  value: "host",
+                                  groupValue: locationDecision,
+                                  onChanged: (val) {
+                                    setState(() {
+                                      locationDecision = val!;
+                                    });
+                                  },
+                                ),
+                                if (locationDecision == "host")
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
+                                    child: TextField(
+                                      controller: locationController,
+                                      decoration: InputDecoration(
+                                        hintText: "Enter address",
+                                        prefixIcon: Icon(Icons.location_on),
+                                        border: OutlineInputBorder(),
+                                      ),
                                     ),
                                   ),
+                                RadioListTile(
+                                  title: Text(
+                                    "Attendee will decide where we meet",
+                                  ),
+                                  subtitle: Text(
+                                    "A questionnaire field will be added to collect their location.",
+                                  ),
+                                  value: "attendee",
+                                  groupValue: locationDecision,
+                                  onChanged: (val) {
+                                    setState(() {
+                                      locationDecision = val!;
+                                    });
+                                  },
                                 ),
-                              RadioListTile(
-                                title: Text(
-                                  "Attendee will decide where we meet",
-                                ),
-                                subtitle: Text(
-                                  "A questionnaire field will be added to collect their location.",
-                                ),
-                                value: "attendee",
-                                groupValue: locationDecision,
-                                onChanged: (val) {
-                                  setState(() {
-                                    locationDecision = val!;
-                                  });
-                                },
-                              ),
-                            ],
-                          )
-                        : null,
+                              ],
+                            )
+                            : null,
                   ),
                   SizedBox(height: 12),
                   locationOption(
@@ -649,22 +749,23 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                     title: "We'll meet on a phone call",
                     selected: selectedLocation == "phone",
                     onTap: () => setState(() => selectedLocation = "phone"),
-                    child: selectedLocation == "phone"
-                        ? Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                            ),
-                            child: TextField(
-                              controller: phoneNumberController,
-                              keyboardType: TextInputType.phone,
-                              decoration: InputDecoration(
-                                hintText: "Enter phone number",
-                                prefixIcon: Icon(Icons.phone),
-                                border: OutlineInputBorder(),
+                    child:
+                        selectedLocation == "phone"
+                            ? Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
                               ),
-                            ),
-                          )
-                        : null,
+                              child: TextField(
+                                controller: phoneNumberController,
+                                keyboardType: TextInputType.phone,
+                                decoration: InputDecoration(
+                                  hintText: "Enter phone number",
+                                  prefixIcon: Icon(Icons.phone),
+                                  border: OutlineInputBorder(),
+                                ),
+                              ),
+                            )
+                            : null,
                   ),
                   SizedBox(height: 12),
                   locationOption(
@@ -698,18 +799,29 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(),
                     onReorder: (oldIndex, newIndex) {
-                      print("💡💡💡💡💡💡💡💡💡oldIndex " + oldIndex.toString() + "💡💡💡💡💡💡💡💡💡newIndex" + newIndex.toString());
+                      print(
+                        "💡💡💡💡💡💡💡💡💡oldIndex " +
+                            oldIndex.toString() +
+                            "💡💡💡💡💡💡💡💡💡newIndex" +
+                            newIndex.toString(),
+                      );
                       if (newIndex > oldIndex) newIndex -= 1;
                       setState(() {
                         final item = allFields.removeAt(oldIndex);
                         allFields.insert(newIndex, item);
-                        print("💡♻️♻️♻️♻️♻️♻️♻️♻️♻️♻️♻️♻️💡allFields reorder " + allFields.toString());
+                        print(
+                          "💡♻️♻️♻️♻️♻️♻️♻️♻️♻️♻️♻️♻️💡allFields reorder " +
+                              allFields.toString(),
+                        );
 
                         for (int i = 0; i < allFields.length; i++) {
                           final field = allFields[i];
                           if (field.containsKey('field_id')) {
                             updateFieldOrderInDatabase(field['field_id'], i);
-                            print("📦📦📦📦updateFieldOrderInDatabase(field['field_id'], i); 📦📦📦📦" + allFields.toString());
+                            print(
+                              "📦📦📦📦updateFieldOrderInDatabase(field['field_id'], i); 📦📦📦📦" +
+                                  allFields.toString(),
+                            );
                           }
                         }
                       });
@@ -721,14 +833,18 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                         color: Colors.white,
                         child: ListTile(
                           leading: Icon(
-                            getIconByName(field['icon'] ?? field['type'] ?? 'question_mark'),
+                            getIconByName(
+                              field['icon'] ?? field['type'] ?? 'question_mark',
+                            ),
                           ),
                           title: Text(field['label']),
                           trailing: IconButton(
                             icon: Icon(Icons.close),
                             onPressed: () async {
                               if (field.containsKey('field_id')) {
-                                await deleteFieldFromDatabase(field['field_id']);
+                                await deleteFieldFromDatabase(
+                                  field['field_id'],
+                                );
                                 setState(() {
                                   allFields.remove(field);
                                 });
@@ -744,9 +860,10 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                               await Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => UpdateFormFieldScreen(
-                                    fieldId: field['field_id'],
-                                  ),
+                                  builder:
+                                      (_) => UpdateFormFieldScreen(
+                                        fieldId: field['field_id'],
+                                      ),
                                 ),
                               );
                               await fetchExistingFields(17);
@@ -769,6 +886,8 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                       if (newField != null) {
                         setState(() {
                           customFields.add(newField);
+                                print("🔴🔴🔴🔴🔴go to save saveCustomFields🔴");
+
                           saveCustomFields(int.parse(appointmentId));
                           customFields = [];
                           fetchExistingFields(17);
@@ -810,7 +929,10 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
             color: selected ? AppColors.secondaryColor : Colors.grey.shade300,
           ),
           borderRadius: BorderRadius.circular(10),
-          color: selected ? const Color.fromARGB(255, 235, 253, 255) : Colors.white,
+          color:
+              selected
+                  ? const Color.fromARGB(255, 235, 253, 255)
+                  : Colors.white,
         ),
         padding: const EdgeInsets.all(12),
         child: Column(

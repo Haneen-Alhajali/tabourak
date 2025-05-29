@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tabourak/colors/app_colors.dart';
+import 'package:tabourak/config/globals.dart';
 import 'package:tabourak/screens/auth/sendOTPScreen.dart';
 import 'package:http/http.dart' as http;
 import 'package:tabourak/screens/home_screen.dart';
@@ -76,6 +77,8 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       if (response.statusCode == 200) {
+        globalAuthToken = responseData['token'];
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => HomeScreen()),
@@ -119,11 +122,12 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       final responseData = jsonDecode(response.body);
-      print(
+    /*  print(
         '🔴🔴🔴 🔴🔴🔴 🔴🔴🔴 🔴🔴🔴 🔴🔴🔴 🔴🔴🔴 🔴🔴🔴 🔴🔴🔴 🔴🔴🔴 🔴🔴🔴Response data: $responseData',
-      );
+      );*/
 
       print('Backend Response: ${response.statusCode} - ${response.body}');
+        globalAuthToken = responseData['token'];
 
       if (response.statusCode == 200) {
         Navigator.pushReplacement(

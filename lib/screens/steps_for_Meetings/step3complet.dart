@@ -30,20 +30,12 @@ class _ConnectCalendarPageState extends State<ConnectCalendarPage> {
   }
 
   Future<void> _fetchCalendarData() async {
-
-
-    print("🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴 _fetchCalendarData  ");
-
     final response = await http.get(
-      
       Uri.parse('${AppConfig.baseUrl}/api/calendar/info'),
       headers: {'Authorization': 'Bearer ${widget.accessToken}'},
     );
-          print("🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴 _fetchCalendarData  (response ");
 
     if (response.statusCode == 200) {
-          print("🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴 _fetchCalendarData  (response.statusCode == 200) ");
-
       final data = jsonDecode(response.body);
       setState(() {
         _selectedCalendar = data['primaryEmail'];
@@ -347,7 +339,15 @@ class _ConnectCalendarPageState extends State<ConnectCalendarPage> {
                                             ),
                                           ),
                                           const SizedBox(width: 8),
-                                          Text(calendar),
+                                          Expanded(
+                                            child: Text(
+                                              calendar,
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                            ),
+                                          ),
+
+                                          //  Text(calendar),
                                         ],
                                       ),
                                       deleteIcon: Icon(

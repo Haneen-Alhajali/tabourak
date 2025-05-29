@@ -11,6 +11,8 @@ import '../../config/config.dart';
 import '../../config/globals.dart';
 
 class CalendarPage extends StatelessWidget {
+
+  
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: [
       'email',
@@ -64,6 +66,8 @@ class CalendarPage extends StatelessWidget {
       print('Backend Response: ${response.statusCode} - ${response.body}');
 
       if (response.statusCode == 200) {
+                print("🔴🔴🔴🔴🔴 _connectCalrnder response.statusCode 🔴🔴🔴🔴🔴");
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(

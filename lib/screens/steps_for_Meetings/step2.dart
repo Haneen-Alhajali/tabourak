@@ -26,62 +26,93 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
   }
 
   Future<void> _loadAvailability() async {
-  try {
-    final response = await http.get(
-      Uri.parse('${AppConfig.baseUrl}/api/availability'),
-      headers: {
-        'Authorization': 'Bearer $globalAuthToken',
-      },
-    );
+    try {
+      final response = await http.get(
+        Uri.parse('${AppConfig.baseUrl}/api/availability'),
+        headers: {'Authorization': 'Bearer $globalAuthToken'},
+      );
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      setState(() {
-        _scheduleId = data['scheduleId']?.toString(); // Convert to string if not null
-        
-        // Initialize with empty arrays for all days
-        availability = {
-          "Sunday": [],
-          "Monday": [],
-          "Tuesday": [],
-          "Wednesday": [],
-          "Thursday": [],
-          "Friday": [],
-          "Saturday": [],
-        };
-        
-        // Fill with data from API
-        if (data['availability'] != null) {
-          data['availability'].forEach((day, ranges) {
-            if (availability.containsKey(day)) {
-              availability[day] = (ranges as List).map((range) {
-                return TimeRange(
-                  TimeOfDay(hour: range['start']['hour'], minute: range['start']['minute']),
-                  TimeOfDay(hour: range['end']['hour'], minute: range['end']['minute']),
-                );
-              }).toList();
-            }
-          });
-        }
-      });
-    } else {
-      throw Exception('Failed to load availability: ${response.statusCode}');
-    }
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          _scheduleId =
+              data['scheduleId']?.toString(); // Convert to string if not null
+
+          // Initialize with empty arrays for all days
+          availability = {
+            "Sunday": [],
+            "Monday": [],
+            "Tuesday": [],
+            "Wednesday": [],
+            "Thursday": [],
+            "Friday": [],
+            "Saturday": [],
+          };
+
+          // Fill with data from API
+          if (data['availability'] != null) {
+            data['availability'].forEach((day, ranges) {
+              if (availability.containsKey(day)) {
+                availability[day] =
+                    (ranges as List).map((range) {
+                      return TimeRange(
+                        TimeOfDay(
+                          hour: range['start']['hour'],
+                          minute: range['start']['minute'],
+                        ),
+                        TimeOfDay(
+                          hour: range['end']['hour'],
+                          minute: range['end']['minute'],
+                        ),
+                      );
+                    }).toList();
+              }
+            });
+          }
+        });
+      } else {
+        throw Exception('Failed to load availability: ${response.statusCode}');
+      }
     } catch (e) {
       final errorMessage = 'Failed to load availability: ${e.toString()}';
       print('SnackBar Error: $errorMessage'); // Added terminal log
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage)),
-      );
-      
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(errorMessage)));
+
       // Initialize with default weekday availability
       setState(() {
         availability = {
-          "Sunday": [TimeRange(TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 17, minute: 0))],
-          "Monday": [TimeRange(TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 17, minute: 0))],
-          "Tuesday": [TimeRange(TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 17, minute: 0))],
-          "Wednesday": [TimeRange(TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 17, minute: 0))],
-          "Thursday": [TimeRange(TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 17, minute: 0))],
+          "Sunday": [
+            TimeRange(
+              TimeOfDay(hour: 9, minute: 0),
+              TimeOfDay(hour: 17, minute: 0),
+            ),
+          ],
+          "Monday": [
+            TimeRange(
+              TimeOfDay(hour: 9, minute: 0),
+              TimeOfDay(hour: 17, minute: 0),
+            ),
+          ],
+          "Tuesday": [
+            TimeRange(
+              TimeOfDay(hour: 9, minute: 0),
+              TimeOfDay(hour: 17, minute: 0),
+            ),
+          ],
+          "Wednesday": [
+            TimeRange(
+              TimeOfDay(hour: 9, minute: 0),
+              TimeOfDay(hour: 17, minute: 0),
+            ),
+          ],
+          "Thursday": [
+            TimeRange(
+              TimeOfDay(hour: 9, minute: 0),
+              TimeOfDay(hour: 17, minute: 0),
+            ),
+          ],
         };
       });
     } finally {
@@ -90,18 +121,18 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
   }
 
   Future<void> _updateAvailability() async {
-      if (_scheduleId == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Please wait while we load your availability')),
-    );
-    await _loadAvailability();
     if (_scheduleId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load schedule information')),
+        SnackBar(content: Text('Please wait while we load your availability')),
       );
-      return;
+      await _loadAvailability();
+      if (_scheduleId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load schedule information')),
+        );
+        return;
+      }
     }
-  }
     try {
       setState(() => _isLoading = true);
 
@@ -109,7 +140,9 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
       bool hasInvalid = false;
       availability.forEach((day, ranges) {
         for (final range in ranges) {
-          if (_isStartAfterEnd(range) || _hasOverlap(day, range) || _isStartSameAsEnd(range)) {
+          if (_isStartAfterEnd(range) ||
+              _hasOverlap(day, range) ||
+              _isStartSameAsEnd(range)) {
             hasInvalid = true;
             return;
           }
@@ -120,9 +153,9 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
         setState(() => _isLoading = false);
         final errorMessage = "Please resolve invalid time slots";
         print('SnackBar Error: $errorMessage'); // Added terminal log
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessage)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(errorMessage)));
         return;
       }
 
@@ -130,18 +163,16 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
       final apiAvailability = {};
       availability.forEach((day, ranges) {
         if (ranges.isNotEmpty) {
-          apiAvailability[day] = ranges.map((range) {
-            return {
-              'start': {
-                'hour': range.start.hour,
-                'minute': range.start.minute,
-              },
-              'end': {
-                'hour': range.end.hour,
-                'minute': range.end.minute,
-              },
-            };
-          }).toList();
+          apiAvailability[day] =
+              ranges.map((range) {
+                return {
+                  'start': {
+                    'hour': range.start.hour,
+                    'minute': range.start.minute,
+                  },
+                  'end': {'hour': range.end.hour, 'minute': range.end.minute},
+                };
+              }).toList();
         }
       });
 
@@ -160,26 +191,32 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
       if (response.statusCode == 200) {
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => CalendarPage(),
-          ),
+          MaterialPageRoute(builder: (context) => CalendarPage()),
         );
+
       } else {
-        final error = json.decode(response.body)['error'] ?? 'Failed to save availability';
+        final error =
+            json.decode(response.body)['error'] ??
+            'Failed to save availability';
         throw Exception(error);
       }
     } catch (e) {
       final errorMessage = 'Error: ${e.toString()}';
       print('SnackBar Error: $errorMessage'); // Added terminal log
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(errorMessage)));
     } finally {
       setState(() => _isLoading = false);
     }
   }
 
-  Future<void> _pickTime(BuildContext context, bool isStart, TimeRange range, String day) async {
+  Future<void> _pickTime(
+    BuildContext context,
+    bool isStart,
+    TimeRange range,
+    String day,
+  ) async {
     final picked = await showTimePicker(
       context: context,
       initialTime: isStart ? range.start : range.end,
@@ -215,21 +252,22 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  children: days.where((d) => d != sourceDay).map((day) {
-                    return CheckboxListTile(
-                      title: Text(day),
-                      value: selected.contains(day),
-                      onChanged: (checked) {
-                        setState(() {
-                          if (checked == true) {
-                            selected.add(day);
-                          } else {
-                            selected.remove(day);
-                          }
-                        });
-                      },
-                    );
-                  }).toList(),
+                  children:
+                      days.where((d) => d != sourceDay).map((day) {
+                        return CheckboxListTile(
+                          title: Text(day),
+                          value: selected.contains(day),
+                          onChanged: (checked) {
+                            setState(() {
+                              if (checked == true) {
+                                selected.add(day);
+                              } else {
+                                selected.remove(day);
+                              }
+                            });
+                          },
+                        );
+                      }).toList(),
                 ),
               ),
               actions: [
@@ -238,9 +276,10 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
                   child: Text("Cancel"),
                 ),
                 ElevatedButton(
-                  onPressed: selected.isEmpty
-                      ? null
-                      : () => Navigator.of(context).pop(selected),
+                  onPressed:
+                      selected.isEmpty
+                          ? null
+                          : () => Navigator.of(context).pop(selected),
                   child: Text("Copy"),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryColor,
@@ -256,19 +295,17 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
     if (selectedDays != null && selectedDays.isNotEmpty) {
       setState(() {
         for (final day in selectedDays) {
-          availability[day] = availability[sourceDay]!
-              .map((tr) => TimeRange(tr.start, tr.end))
-              .toList();
+          availability[day] =
+              availability[sourceDay]!
+                  .map((tr) => TimeRange(tr.start, tr.end))
+                  .toList();
         }
       });
-      
+
       final successMessage = "Copied to ${selectedDays.length} day(s)";
       print('SnackBar Success: $successMessage'); // Added terminal log
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(successMessage),
-          duration: Duration(seconds: 2),
-        ),
+        SnackBar(content: Text(successMessage), duration: Duration(seconds: 2)),
       );
     }
   }
@@ -276,24 +313,26 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
   void _addTimeSlot(String day) {
     setState(() {
       if (availability[day]!.isEmpty) {
-        availability[day]!.add(TimeRange(
-          TimeOfDay(hour: 9, minute: 0),
-          TimeOfDay(hour: 17, minute: 0),
-        ));
+        availability[day]!.add(
+          TimeRange(
+            TimeOfDay(hour: 9, minute: 0),
+            TimeOfDay(hour: 17, minute: 0),
+          ),
+        );
       } else {
         final lastSlot = availability[day]!.last;
         TimeOfDay newStart = lastSlot.end;
         TimeOfDay newEnd;
-        
+
         int newHour = newStart.hour + 1;
         int newMinute = newStart.minute;
-        
+
         if (newHour >= 24) {
           newHour = newHour % 24;
         }
-        
+
         newEnd = TimeOfDay(hour: newHour, minute: newMinute);
-        
+
         availability[day]!.add(TimeRange(newStart, newEnd));
       }
     });
@@ -302,7 +341,7 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
   bool _hasOverlap(String day, TimeRange newRange) {
     for (final existingRange in availability[day]!) {
       if (existingRange == newRange) continue;
-      
+
       final existingStart = existingRange.start;
       final existingEnd = existingRange.end;
       final newStart = newRange.start;
@@ -312,10 +351,12 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
         continue;
       }
 
-      if ((newStart.hour < existingEnd.hour || 
-          (newStart.hour == existingEnd.hour && newStart.minute < existingEnd.minute)) &&
-          (newEnd.hour > existingStart.hour || 
-          (newEnd.hour == existingStart.hour && newEnd.minute > existingStart.minute))) {
+      if ((newStart.hour < existingEnd.hour ||
+              (newStart.hour == existingEnd.hour &&
+                  newStart.minute < existingEnd.minute)) &&
+          (newEnd.hour > existingStart.hour ||
+              (newEnd.hour == existingStart.hour &&
+                  newEnd.minute > existingStart.minute))) {
         return true;
       }
     }
@@ -323,13 +364,14 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
   }
 
   bool _isStartAfterEnd(TimeRange range) {
-    return range.end.hour < range.start.hour || 
-          (range.end.hour == range.start.hour && range.end.minute < range.start.minute);
+    return range.end.hour < range.start.hour ||
+        (range.end.hour == range.start.hour &&
+            range.end.minute < range.start.minute);
   }
 
   bool _isStartSameAsEnd(TimeRange range) {
-    return range.start.hour == range.end.hour && 
-           range.start.minute == range.end.minute;
+    return range.start.hour == range.end.hour &&
+        range.start.minute == range.end.minute;
   }
 
   @override
@@ -366,7 +408,7 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
               ],
             ),
           ),
-          
+
           // Title and description
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -390,127 +432,157 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
               ],
             ),
           ),
-          
+
           // Availability editor
           Expanded(
             child: ListView(
               padding: const EdgeInsets.all(20),
               children: [
-                ...availability.keys.where((day) => availability[day]!.isNotEmpty).map((day) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+                ...availability.keys
+                    .where((day) => availability[day]!.isNotEmpty)
+                    .map((day) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            day,
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          Spacer(),
-                          IconButton(
-                            icon: Icon(
-                              Icons.copy,
-                              color: AppColors.primaryColor,
-                            ),
-                            onPressed: () => _copyToOtherDays(day),
-                            tooltip: 'Copy to other days',
-                          ),
-                        ],
-                      ),
-                      ...availability[day]!.map((range) {
-                        final hasOverlap = _hasOverlap(day, range);
-                        final isStartAfterEnd = _isStartAfterEnd(range);
-                        final isStartSameAsEnd = _isStartSameAsEnd(range);
-                        final isInvalid = hasOverlap || isStartAfterEnd || isStartSameAsEnd;
-                        return Container(
-                          margin: EdgeInsets.symmetric(vertical: 5),
-                          padding: EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: isInvalid ? Colors.red : AppColors.textColorSecond,
-                              width: isInvalid ? 2 : 1,
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                            color: isInvalid 
-                                ? Colors.red.withOpacity(0.1) 
-                                : AppColors.backgroundColor,
-                          ),
-                          child: Column(
+                          Row(
                             children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () => _pickTime(context, true, range, day),
-                                      child: _timeBox(range.start, isInvalid: isInvalid),
-                                    ),
-                                  ),
-                                  Text(" - "),
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () => _pickTime(context, false, range, day),
-                                      child: _timeBox(range.end, isInvalid: isInvalid),
-                                    ),
-                                  ),
-                                  IconButton(
-                                    icon: Icon(
-                                      Icons.close,
-                                      color: isInvalid ? Colors.red : AppColors.textColor,
-                                    ),
-                                    onPressed: () {
-                                      setState(() {
-                                        availability[day]!.remove(range);
-                                      });
-                                    },
-                                  ),
-                                ],
+                              Text(
+                                day,
+                                style: TextStyle(fontWeight: FontWeight.bold),
                               ),
-                              if (isInvalid)
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 8.0),
-                                  child: Text(
-                                    isStartAfterEnd 
-                                        ? "Start can't be after end" 
-                                        : isStartSameAsEnd
-                                          ? "Start time can't be same as end time"
-                                          : "Time ranges can't overlap",
-                                    style: TextStyle(
-                                      color: Colors.red,
-                                      fontSize: 12,
-                                    ),
-                                  ),
+                              Spacer(),
+                              IconButton(
+                                icon: Icon(
+                                  Icons.copy,
+                                  color: AppColors.primaryColor,
                                 ),
+                                onPressed: () => _copyToOtherDays(day),
+                                tooltip: 'Copy to other days',
+                              ),
                             ],
                           ),
-                        );
-                      }).toList(),
-                      TextButton(
-                        onPressed: () => _addTimeSlot(day),
-                        child: Row(
-                          children: [
-                            Icon(Icons.add, color: AppColors.primaryColor),
-                            Text(
-                              "Add Time",
-                              style: TextStyle(color: AppColors.primaryColor),
+                          ...availability[day]!.map((range) {
+                            final hasOverlap = _hasOverlap(day, range);
+                            final isStartAfterEnd = _isStartAfterEnd(range);
+                            final isStartSameAsEnd = _isStartSameAsEnd(range);
+                            final isInvalid =
+                                hasOverlap ||
+                                isStartAfterEnd ||
+                                isStartSameAsEnd;
+                            return Container(
+                              margin: EdgeInsets.symmetric(vertical: 5),
+                              padding: EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color:
+                                      isInvalid
+                                          ? Colors.red
+                                          : AppColors.textColorSecond,
+                                  width: isInvalid ? 2 : 1,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                                color:
+                                    isInvalid
+                                        ? Colors.red.withOpacity(0.1)
+                                        : AppColors.backgroundColor,
+                              ),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: GestureDetector(
+                                          onTap:
+                                              () => _pickTime(
+                                                context,
+                                                true,
+                                                range,
+                                                day,
+                                              ),
+                                          child: _timeBox(
+                                            range.start,
+                                            isInvalid: isInvalid,
+                                          ),
+                                        ),
+                                      ),
+                                      Text(" - "),
+                                      Expanded(
+                                        child: GestureDetector(
+                                          onTap:
+                                              () => _pickTime(
+                                                context,
+                                                false,
+                                                range,
+                                                day,
+                                              ),
+                                          child: _timeBox(
+                                            range.end,
+                                            isInvalid: isInvalid,
+                                          ),
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: Icon(
+                                          Icons.close,
+                                          color:
+                                              isInvalid
+                                                  ? Colors.red
+                                                  : AppColors.textColor,
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            availability[day]!.remove(range);
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  if (isInvalid)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 8.0),
+                                      child: Text(
+                                        isStartAfterEnd
+                                            ? "Start can't be after end"
+                                            : isStartSameAsEnd
+                                            ? "Start time can't be same as end time"
+                                            : "Time ranges can't overlap",
+                                        style: TextStyle(
+                                          color: Colors.red,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                          TextButton(
+                            onPressed: () => _addTimeSlot(day),
+                            child: Row(
+                              children: [
+                                Icon(Icons.add, color: AppColors.primaryColor),
+                                Text(
+                                  "Add Time",
+                                  style: TextStyle(
+                                    color: AppColors.primaryColor,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                    ],
-                  );
-                }).toList(),
-                
+                          ),
+                          SizedBox(height: 10),
+                        ],
+                      );
+                    })
+                    .toList(),
+
                 // Weekend toggle
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        "Show Weekend",
-                        style: TextStyle(fontSize: 16),
-                      ),
+                      Text("Show Weekend", style: TextStyle(fontSize: 16)),
                       Switch(
                         value: availability["Friday"]?.isNotEmpty ?? false,
                         onChanged: (value) {
@@ -543,7 +615,7 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
               ],
             ),
           ),
-          
+
           // Footer with next button
           Padding(
             padding: const EdgeInsets.all(20),
@@ -555,12 +627,13 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
                     backgroundColor: AppColors.primaryColor,
                     minimumSize: Size(double.infinity, 50),
                   ),
-                  child: _isLoading
-                      ? CircularProgressIndicator(color: Colors.white)
-                      : Text(
-                          "Next: Calendar Sync →",
-                          style: TextStyle(color: Colors.white, fontSize: 16),
-                        ),
+                  child:
+                      _isLoading
+                          ? CircularProgressIndicator(color: Colors.white)
+                          : Text(
+                            "Next: Calendar Sync →",
+                            style: TextStyle(color: Colors.white, fontSize: 16),
+                          ),
                 ),
                 SizedBox(height: 20),
                 Text(
@@ -594,9 +667,7 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
       child: Center(
         child: Text(
           time.format(context),
-          style: TextStyle(
-            color: isInvalid ? Colors.red : null,
-          ),
+          style: TextStyle(color: isInvalid ? Colors.red : null),
         ),
       ),
     );

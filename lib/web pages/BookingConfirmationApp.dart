@@ -21,7 +21,6 @@ class BookingConfirmationApp extends StatelessWidget {
 }
 */
 
-
 class BookingConfirmationScreen extends StatefulWidget {
   final String appointmentType;
   final DateTime startTime; //
@@ -75,7 +74,11 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> {
     try {
       final response = await http.post(
         url,
-        headers: {"Content-Type": "application/json"},
+        headers: {
+          'Accept': 'application/json',
+          'Cache-Control': 'no-cache',
+          'ngrok-skip-browser-warning': 'true',
+        },
         body: body,
       );
 
@@ -135,7 +138,12 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> {
     try {
       final response = await http.post(
         url,
-        headers: {"Content-Type": "application/json"},
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache',
+          'ngrok-skip-browser-warning': 'true',
+        },
         body: jsonEncode(body),
       );
 
@@ -171,7 +179,11 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> {
     try {
       final response = await http.post(
         url,
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Accept': 'application/json',
+          'Cache-Control': 'no-cache',
+          'ngrok-skip-browser-warning': 'true',
+        },
         body: json.encode(body),
       );
 
@@ -233,7 +245,11 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> {
     try {
       final response = await http.post(
         url,
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Accept': 'application/json',
+          'Cache-Control': 'no-cache',
+          'ngrok-skip-browser-warning': 'true',
+        },
         body: jsonEncode(body),
       );
 
@@ -253,7 +269,14 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> {
     final appointmentUrl = Uri.parse(
       '${AppConfig.baseUrl}/api/appointment/${widget.appointmentId}',
     );
-    final appointmentResponse = await http.get(appointmentUrl);
+    final appointmentResponse = await http.get(
+      appointmentUrl,
+      headers: {
+        'Accept': 'application/json',
+        'Cache-Control': 'no-cache',
+        'ngrok-skip-browser-warning': 'true',
+      },
+    );
     if (appointmentResponse.statusCode != 200) {
       throw Exception('error in meeting data ');
     }
@@ -263,7 +286,14 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> {
     final memberUrl = Uri.parse(
       '${AppConfig.baseUrl}/api/members/${widget.member_id}',
     );
-    final memberResponse = await http.get(memberUrl);
+    final memberResponse = await http.get(
+      memberUrl,
+      headers: {
+        'Accept': 'application/json',
+        'Cache-Control': 'no-cache',
+        'ngrok-skip-browser-warning': 'true',
+      },
+    );
     if (memberResponse.statusCode != 200) {
       throw Exception('error in member data');
     }
@@ -274,7 +304,14 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> {
     final responsesUrl = Uri.parse(
       '${AppConfig.baseUrl}/api/responses_user_info/${widget.userId}',
     );
-    final responsesResponse = await http.get(responsesUrl);
+    final responsesResponse = await http.get(
+      responsesUrl,
+      headers: {
+        'Accept': 'application/json',
+        'Cache-Control': 'no-cache',
+        'ngrok-skip-browser-warning': 'true',
+      },
+    );
     if (responsesResponse.statusCode != 200) {
       throw Exception('error responce data');
     }
@@ -318,7 +355,6 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> {
       locationLine = '📞 Phone Number \n${appointmentData["phone"]}';
     } else if (message.contains('In-person')) {
       meetingTypeLine = 'You\'ll meet in person';
-      //  locationLine = '📍 Location \n${appointmentData["location"]}';
       final rawLocation = '📍 Location \n${appointmentData["location"]}';
 
       locationLine = rawLocation;
@@ -329,11 +365,8 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> {
 
       if (widget.attendeeType == "one_on_one") {
         final meetingData = await createZoomMeeting();
-        print("🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴meetingData" + meetingData.toString());
 
         if (meetingData != null) {
-          print("💡💡💡💡💡💡💡💡💡time of if 💡💡💡💡💡💡💡💡💡");
-
           final startUrl = meetingData['start_url'];
           final joinUrl = meetingData['join_url'];
           final uuid = meetingData['uuid'];
@@ -397,171 +430,122 @@ ${answersSection.toString()}
     };
   }
 
-  /*
-  Future<String> buildEmailMessage() async {
-    String guestName = "shahd";
-    String guestEmail = "email@gmail.com";
-    final url = Uri.parse(
-      '${AppConfig.baseUrl}/api/appointment/${widget.appointmentId}',
-    );
-    final response = await http.get(url);
-
-    if (response.statusCode != 200) {
-      throw Exception('فشل في جلب بيانات الاجتماع');
-    }
-
-    final data = jsonDecode(response.body);
-    final message = data['message'];
-
-    // تنسيق الوقت والتاريخ
-    final String day = DateFormat(
-      'EEEE MMMM dd, yyyy',
-    ).format(widget.startTime); // الأربعاء 21 مايو
-    final String timeRange =
-        DateFormat('h:mma').format(widget.startTime) +
-        ' – ' +
-        DateFormat('h:mma').format(widget.endTime); // 7:30am – 8am
-    final String timeZone =
-        'Asia/Jerusalem'; 
-
-    String locationLine = '';
-    String meetingTypeLine = '';
-
-    if (message.contains('Phone call')) {
-      meetingTypeLine = 'You\'ll meet on a phone call';
-      locationLine = '📞Phone Number\n${data["phone"]}';
-    } else if (message.contains('In-person')) {
-      meetingTypeLine = 'You\'ll meet in person';
-      locationLine = '📍Location\n${data["location"]}';
-    } else if (message.contains('Zoom')) {
-      meetingTypeLine = 'You\'ll meet on a web conference';
-      final zoomLink =
-          'https://appt.link/m/MmtPulhdhk/conference'; 
-      locationLine = '🔗 Location\n$zoomLink\nView map';
-    }
-
-    return '''
-$meetingTypeLine
-
---------------------------------------------
-🕒When
-
-$day ⋅ $timeRange ($timeZone)
-
---------------------------------------------
-
-$locationLine
-
---------------------------------------------
-
-👤Guests
-
-$guestName - organizer
-
-$guestEmail
-''';
-  }
-*/
-  ////////////////////////////////////////////////////////////////////////////////
-
   @override
   Widget build(BuildContext context) {
-    print("🔴🔴🔴🔴🔴 🔴🔴🔴🔴🔴");
-
-    //  print(buildEmailMessage());
-
     return Scaffold(
       backgroundColor: Color(0xFFF8F9FB),
       body: Center(
-        child: Card(
-          elevation: 4,
-          margin: EdgeInsets.all(20),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
+        child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.check_circle, color: Colors.green, size: 64),
-                SizedBox(height: 16),
-                Text(
-                  'Thanks for booking!',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  'You\'ll receive an email with meeting detailes.',
-                  style: TextStyle(fontSize: 14, color: Colors.grey[700]),
-                ),
-                SizedBox(height: 24),
-
-                // Meeting Type
-                Row(
-                  children: [
-                    CircleAvatar(
-                      backgroundColor: Colors.orange[100],
-                      child: Icon(Icons.event, color: Colors.orange),
+            padding: const EdgeInsets.all(20.0),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: 500,
+                ), // Limits card width on large screens
+                child: Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 32,
                     ),
-                    SizedBox(width: 12),
-                    Text(
-                      widget.appointmentName,
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 16),
-
-                // Date and Time
-                Row(
-                  children: [
-                    CircleAvatar(
-                      backgroundColor: Colors.green[100],
-                      child: Icon(Icons.calendar_today, color: Colors.green),
-                    ),
-                    SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
+                        Icon(Icons.check_circle, color: Colors.green, size: 64),
+                        SizedBox(height: 16),
                         Text(
-                          DateFormat.jm().format(widget.startTime).toString() +
-                              "  -  " +
+                          'Thanks for booking!',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'You\'ll receive an email with meeting details.',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[700],
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 24),
+
+                        // Meeting Type
+                        _buildDetailRow(
+                          icon: Icon(Icons.event, color: Colors.orange),
+                          backgroundColor: Colors.orange[100],
+                          mainText: widget.appointmentName,
+                        ),
+                        SizedBox(height: 16),
+
+                        // Date and Time
+                        _buildDetailRow(
+                          icon: Icon(Icons.calendar_today, color: Colors.green),
+                          backgroundColor: Colors.green[100],
+                          mainText:
+                              DateFormat.jm()
+                                  .format(widget.startTime)
+                                  .toString() +
+                              " - " +
                               DateFormat.jm().format(widget.endTime).toString(),
-                          style: TextStyle(fontSize: 16),
+                          secondaryText:
+                              DateFormat.yMMMMEEEEd()
+                                  .format(widget.endTime)
+                                  .toString(),
                         ),
-                        Text(
-                          DateFormat.yMMMMEEEEd()
-                              .format(widget.endTime)
-                              .toString(),
-                          style: TextStyle(color: Colors.grey[600]),
+                        SizedBox(height: 16),
+
+                        // Location
+                        _buildDetailRow(
+                          icon: Icon(Icons.location_on, color: Colors.pink),
+                          backgroundColor: Colors.pink[100],
+                          mainText: widget.appointmentType,
                         ),
+                        SizedBox(height: 24),
                       ],
                     ),
-                  ],
+                  ),
                 ),
-                SizedBox(height: 16),
-
-                // Location
-                Row(
-                  children: [
-                    CircleAvatar(
-                      backgroundColor: Colors.pink[100],
-                      child: Icon(Icons.location_on, color: Colors.pink),
-                    ),
-                    SizedBox(width: 12),
-                    Text(
-                      widget.appointmentType,
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 24),
-              ],
+              ),
             ),
           ),
         ),
       ),
+    );
+  }
+
+  // Helper widget for consistent detail rows
+  Widget _buildDetailRow({
+    required Icon icon,
+    required Color? backgroundColor,
+    required String mainText,
+    String? secondaryText,
+  }) {
+    return Row(
+      crossAxisAlignment:
+          secondaryText != null
+              ? CrossAxisAlignment.start
+              : CrossAxisAlignment.center,
+      children: [
+        CircleAvatar(backgroundColor: backgroundColor, child: icon),
+        SizedBox(width: 12),
+        secondaryText != null
+            ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(mainText, style: TextStyle(fontSize: 16)),
+                Text(secondaryText, style: TextStyle(color: Colors.grey[600])),
+              ],
+            )
+            : Text(mainText, style: TextStyle(fontSize: 16)),
+      ],
     );
   }
 }

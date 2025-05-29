@@ -8,6 +8,7 @@ import 'dart:convert';
 import '../../config/config.dart';
 import '../../config/globals.dart';
 
+
 class RegisterPage extends StatefulWidget {
   final String email;
 

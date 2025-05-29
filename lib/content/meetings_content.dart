@@ -11,6 +11,8 @@ import 'package:dio/dio.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:io';
 import 'package:permission_handler/permission_handler.dart';
+import '../../config/globals.dart';
+
 
 class MeetingsContent extends StatefulWidget {
   @override
@@ -26,21 +28,65 @@ class _MeetingsContentState extends State<MeetingsContent> {
   String searchQuery = '';
   int memberID = 1;
 
-  @override
-  void initState() {
-    super.initState();
-    fetchMeetings();
 
+Future<int?> getUserIdFromToken(String? globalAuthToken) async {
+  final url = Uri.parse('${AppConfig.baseUrl}/api/getAuth/get-member-id-aouth'); 
+    //    print('💡 globalAuthToken'+globalAuthToken.toString());
+
+  try {
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'globalAuthToken': globalAuthToken,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['memberId'];
+    } else {
+      print('❌ Failed to get user ID. Status code: ${response.statusCode}');
+      print('Body: ${response.body}');
+      return null;
+    }
+  } catch (e) {
+    print('🚨 Error getting user ID: $e');
+    return null;
+  }
+}
+
+
+
+@override
+void initState() {
+  super.initState();
+  initializeData(); 
+}
+
+Future<void> initializeData() async {
+  final userId = await getUserIdFromToken(globalAuthToken);
+  if (userId == null) {
+    print('❌ Failed to get userId from token');
+    return;
   }
 
-  Future<void> fetchMeetings() async {
-    try {      print("🔴🔴🔴🔴🔴response 🔴🔴🔴🔴🔴");
+  setState(() {
+    memberID = userId;
+  });
 
+  await fetchMeetings(); 
+}
+
+
+  Future<void> fetchMeetings() async {
+    try {      
       final response = await http.get(
         Uri.parse('${AppConfig.baseUrl}/api/meetingsShowPage/$memberID'),
       );
 
-      print("🔴🔴🔴🔴🔴response 🔴🔴🔴🔴🔴");
 
       if (response.statusCode == 200) {
         setState(() {
@@ -162,7 +208,7 @@ class _MeetingsContentState extends State<MeetingsContent> {
   //////////////////////////////////////////////////////////////////////////////////////////////////
   Future<void> downloadCSVFile(int memberId) async {
     try {
-      // فقط اطبعي إن الجهاز أندرويد
+
       if (Platform.isAndroid) {
         print("🔴🔴🔴🔴🔴Platform.isAndroid🔴🔴🔴🔴🔴");
       }
@@ -451,7 +497,6 @@ class _MeetingsContentState extends State<MeetingsContent> {
                   final timeString =
                       "${_formatTime(startTime)} - ${_formatTime(endTime)}";
 
-                  // ✨ نأخذ أول اسم ونجهز كل الـ user ids
                   final firstUser = mainMeeting['user'];
 
                   final allClients =

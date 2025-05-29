@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:tabourak/colors/app_colors.dart';
+import 'package:tabourak/config/config.dart';
 import 'package:tabourak/screens/auth/signup_screen.dart';
 
 class VerifyOtpScreen extends StatefulWidget {
@@ -19,7 +20,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
 
   Future<void> verifyOtp() async {
     final response = await http.post(
-      Uri.parse('http://192.168.1.140:3000/api/otp/otp-verify'),
+      Uri.parse('${AppConfig.baseUrl}/api/otp/otp-verify'),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
         "email": widget.email,

@@ -3,6 +3,7 @@ import 'package:tabourak/colors/app_colors.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:tabourak/config/config.dart';
+
 /*
 void main() => runApp(
   MaterialApp(
@@ -12,17 +13,13 @@ void main() => runApp(
 );
 */
 class UpdateFormFieldScreen extends StatefulWidget {
-  final int fieldId; 
+  final int fieldId;
 
   UpdateFormFieldScreen({required this.fieldId});
 
   @override
   _UpdateFormFieldScreenState createState() => _UpdateFormFieldScreenState();
 }
- 
-
-
-
 
 class _UpdateFormFieldScreenState extends State<UpdateFormFieldScreen> {
   String selectedFieldType = 'Text Field';
@@ -91,32 +88,28 @@ class _UpdateFormFieldScreenState extends State<UpdateFormFieldScreen> {
     }
   }
 
-
-String _mapFieldTypeToBackend(String type) {
-  switch (type) {
-    case 'Text Field':
-      return 'text';
-    case 'Paragraph Field':
-      return 'textarea';
-    case 'Choice Field':
-      return 'dropdown';
-    case 'Multiple Choice Field':
-      return 'radio';
-    case 'Checkbox Field':
-      return 'checkbox';
-    case 'Place Field':
-      return 'place';
-    case 'Date Field':
-      return 'date';
-    case 'Time Field':
-      return 'time';
-    default:
-      return 'text';
+  String _mapFieldTypeToBackend(String type) {
+    switch (type) {
+      case 'Text Field':
+        return 'text';
+      case 'Paragraph Field':
+        return 'textarea';
+      case 'Choice Field':
+        return 'dropdown';
+      case 'Multiple Choice Field':
+        return 'radio';
+      case 'Checkbox Field':
+        return 'checkbox';
+      case 'Place Field':
+        return 'place';
+      case 'Date Field':
+        return 'date';
+      case 'Time Field':
+        return 'time';
+      default:
+        return 'text';
+    }
   }
-}
-
-
-
 
   String _formatFieldType(String type) {
     switch (type.toLowerCase()) {
@@ -165,7 +158,7 @@ String _mapFieldTypeToBackend(String type) {
             .where((text) => text.isNotEmpty)
             .toList();
 
-    print("🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴Failed to fetch data   $options");
+    print("🔴options   $options");
 
     final Map<String, dynamic> fieldData = {
       "label": labelController.text.trim(),
@@ -175,7 +168,7 @@ String _mapFieldTypeToBackend(String type) {
       "default_value": options.isNotEmpty ? options.first : null,
       "options": options,
     };
-    print("🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴Failed to fetch data   $fieldData");
+    print("🔴fieldData  $fieldData");
 
     try {
       final response = await http.put(
@@ -185,6 +178,8 @@ String _mapFieldTypeToBackend(String type) {
       );
 
       if (response.statusCode == 200) {
+        print("🔴response.statusCode" + response.statusCode.toString());
+
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text("Field updated successfully.")));
@@ -198,7 +193,9 @@ String _mapFieldTypeToBackend(String type) {
       );
     }
 
-      Navigator.pop(context);
+      print("💡💡💡done update fff");
+
+  //  Navigator.pop(context);
   }
 
   @override
