@@ -3,10 +3,45 @@ const axios = require('axios');
 
 const express = require('express');
 const app = express();
+
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*'); 
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
+});
+
+
+
 const cors = require('cors');
-app.use(cors());
 
 
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:4200',
+  'http://127.0.0.1:5500',
+  'http://localhost:5173',
+  'http://localhost:8000',
+  'https://tabourak-dab3d.web.app', // Flutter Web URL
+  'https://2218-178-130-171-122.ngrok-free.app' 
+];
+
+app.use(cors({
+  origin: allowedOrigins,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
+
+
+/*
+const cors = require('cors');
+app.use(cors({
+  origin: '*', 
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
+*/
 
 
 
@@ -27,6 +62,17 @@ const meetingRoutes = require('./routes/shahdRoutes/meetingShowRoutes');
 const zoomRoutes = require('./routes/shahdRoutes/zoomRoute');
 
 const getPageIdRoute = require('./routes/shahdRoutes/pageSlugRoutes');
+
+
+
+const stripeRoutes = require('./routes/stripeRoute');
+
+
+
+
+
+
+
 
 
 
@@ -52,13 +98,17 @@ app.use('/zoom', zoomRoutes);
 
 app.use('/api', getPageIdRoute); 
 
+app.use('/api', stripeRoutes);
+
+
+
 
 app.get('/', (req, res) => {
   res.send('Tabourak Backend is working!');
 });
 
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+
+app.listen(3000, '0.0.0.0', () => {
+  console.log('Server running on http://localhost:3000');
 });

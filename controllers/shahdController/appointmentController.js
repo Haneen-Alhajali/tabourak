@@ -3,6 +3,7 @@ const appointmentModel = require("../../models/shahdModels/appointmentModel");
 
 const { updateAppointmentById } = require("../../models/shahdModels/appointmentModel");
 
+
 const getAppointmentDetails = (req, res) => {
   const appointmentId = req.params.id;
 

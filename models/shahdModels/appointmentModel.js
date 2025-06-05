@@ -6,6 +6,7 @@ const getAppointmentById = (id, callback) => {
     FROM appointments 
     WHERE appointment_id = ?
   `;
+  
   db.query(sql, [id], (err, results) => {
     if (err) return callback(err);
     callback(null, results[0]);
